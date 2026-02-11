@@ -7,6 +7,8 @@ import numpy as np
 from sklearn.neural_network import MLPClassifier
 from sklearn.pipeline import Pipeline
 from sklearn.metrics import accuracy_score
+from sklearn.preprocessing import StandardScaler
+from sklearn.discriminant_analysis import LinearDiscriminantAnalysis
 
 from mne.decoding import CSP
 import os
@@ -14,7 +16,9 @@ import os
 
 def train(X, y):
     pipe = Pipeline([
-        ("csp", CSP(n_components=4, log=False)),
+        ("csp", CSP(n_components=4, log=True)),
+        # ("lda", LinearDiscriminantAnalysis())
+        # ("scaler", StandardScaler()),
         ("mlp", MLPClassifier(
             hidden_layer_sizes=(64, 32, 16),
             activation="relu",
@@ -22,11 +26,17 @@ def train(X, y):
             random_state=42,
             batch_size=64,
             learning_rate="adaptive",
-            learning_rate_init=0.001
+            learning_rate_init=0.0001
         ))
     ])
     pipe.fit(X, y)
-    
+
+    mlp = pipe.named_steps["mlp"]
+    plt.plot(mlp.loss_curve_)
+    plt.xlabel("Epoch")
+    plt.ylabel("Loss")
+    plt.show()
+
     y_pred = pipe.predict(X)
     acc = accuracy_score(y, y_pred)
     print("Train accuracy", acc)
@@ -42,7 +52,7 @@ def read_edf(file: str) -> np.ndarray:
     # print(events_from_annot)
     # print(raw)
     # raw.filter(4, 14)
-    raw.filter(4, 30)
+    raw.filter(4, 14)
     event_id = {
         "T1": 2,
         "T2": 3,
@@ -75,48 +85,42 @@ def read_datafolder(path: str) -> tuple:
         files = os.listdir(os.path.join(path, folder))
         for file in files:
             if not file.endswith(".edf"): continue
-            # print(file[-7:])
             if not file[-7:-4] in runs: continue
             filepath = os.path.join(path, folder, file)
-            # print(filepath)
             res = read_edf(filepath)
-            # print(res[0].shape)
-            # print(res[1].shape)
             if res[0].shape[-1] == 641:
                 Xarr.append(res[0])
                 yarr.append(res[1])
-        # break
-    # for i, x in enumerate(Xarr):
-    #     print(i, x.shape)
     Xarr_out = np.concatenate(Xarr, axis=0)
     yarr_out = np.concatenate(yarr, axis=0)
-    # print(Xarr_out.shape)
-    # print(yarr_out.shape)
     return Xarr_out, yarr_out
+
+
+def split_data(X, y):
+    perm = np.random.permutation(len(X))
+    split = int(0.8 * len(X))
+    idx_X_train = perm[: split]
+    idx_X_test = perm[split :]
+    X_train = X[idx_X_train]
+    X_test = X[idx_X_test]
+    y_train = y[idx_X_train]
+    y_test = y[idx_X_test]
+    return X_train, X_test, y_train, y_test
+
+
+def predict(pipe, X_test, y_test):
+    y_pred = pipe.predict(X_test)
+    acc = accuracy_score(y_test, y_pred)
+    print("Test accuracy", acc)
+    return y_pred
 
 
 def main():
     X, y = read_datafolder(sys.argv[1])
-
-    perm = np.random.permutation(len(X))
-
-    split = int(0.8 * len(X))
-    idx_X_train = perm[: split]
-    idx_X_test = perm[split :]
-
-    X_train = X[idx_X_train]
-    X_test = X[idx_X_test]
-
-    y_train = y[idx_X_train]
-    y_test = y[idx_X_test]
-
+    X_train, X_test, y_train, y_test = split_data(X, y)
     pipe = train(X_train, y_train)
-    y_pred = pipe.predict(X_test)
-    acc = accuracy_score(y_test, y_pred)
-    print("Test accuracy", acc)
-    
-    count = sum([1 for i in y if i == 2])
-    print(count / len(y))
+    predict(pipe, X_test, y_test)
+
     # np_data, labels= read_edf(sys.argv[1])
 
     # print(np_data.shape)
@@ -134,7 +138,6 @@ def main():
     # y_pred2 = pipe.predict(np_data2)
     # acc2 = accuracy_score(labels2, y_pred2)
     # print(acc2)
-
 
 
 
