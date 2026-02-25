@@ -33,22 +33,23 @@ def train(X, y):
             learning_rate_init=0.0005,
             early_stopping=False,
             shuffle=True
+            # validation_fraction=0.15,
         ))
     ])
     pipe.fit(X, y)
 
-    # mlp = pipe.named_steps["mlp"]
-    # plt.plot(mlp.loss_curve_)
+    mlp = pipe.named_steps["mlp"]
+    plt.plot(mlp.loss_curve_)
     
-    # plt.xlabel("Epoch")
-    # plt.ylabel("Loss")
-    # plt.show()
+    plt.xlabel("Epoch")
+    plt.ylabel("Loss")
+    plt.show()
 
-    # # print(mlp.cr)
+    # print(mlp.cr)
 
-    # y_pred = pipe.predict(X)
-    # acc = accuracy_score(y, y_pred)
-    # print("Train accuracy", acc)
+    y_pred = pipe.predict(X)
+    acc = accuracy_score(y, y_pred)
+    print("Train accuracy", acc)
 
     scores = cross_val_score(pipe, X, y, cv=5)
     print("Train score", scores.mean())
@@ -82,10 +83,10 @@ def read_edf(file: str) -> np.ndarray:
 def read_datafolder(path: str) -> tuple:
     folders = os.listdir(path)
 
-    # runs = [ "R03", "R07", "R11"]
-    # runs = [ "R04", "R08", "R12"]
-    # runs = [ "R05", "R09", "R13"]
-    runs = [ "R06", "R10", "R14"]
+    runs = [ "R03", "R07", "R11"]
+    runs = [ "R04", "R08", "R12"]
+    runs = [ "R05", "R09", "R13"]
+    # runs = [ "R06", "R10", "R14"]
 
     Xarr = []
     yarr = []
@@ -106,7 +107,7 @@ def read_datafolder(path: str) -> tuple:
 
 def split_data(X, y):
     perm = np.random.permutation(len(X))
-    split = int(0.99 * len(X))
+    split = int(0.85 * len(X))
     idx_X_train = perm[: split]
     idx_X_test = perm[split :]
     X_train = X[idx_X_train]
@@ -117,21 +118,21 @@ def split_data(X, y):
 
 
 def predict(pipe, X_test, y_test):
-    # y_pred = pipe.predict(X_test)
-    # acc = accuracy_score(y_test, y_pred)
-    # print("Test accuracy", acc)
+    y_pred = pipe.predict(X_test)
+    acc = accuracy_score(y_test, y_pred)
+    print("Test accuracy", acc)
 
     scores = cross_val_score(pipe, X_test, y_test, cv=5)
 
     print("Test score", scores.mean())
-    # return y_pred
+    return y_pred
 
 
 def main():
     X, y = read_datafolder(sys.argv[1])
     X_train, X_test, y_train, y_test = split_data(X, y)
     pipe = train(X_train, y_train)
-    # predict(pipe, X_test, y_test)
+    predict(pipe, X_test, y_test)
 
 
 if __name__ == "__main__":

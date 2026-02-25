@@ -4,22 +4,25 @@ import mne
 import sys
 import numpy as np
 
-from sklearn.neural_network import MLPClassifier
-from sklearn.pipeline import Pipeline
-from sklearn.metrics import accuracy_score
-from sklearn.preprocessing import StandardScaler
-from sklearn.discriminant_analysis import LinearDiscriminantAnalysis
+# from sklearn.neural_network import MLPClassifier
+# from sklearn.pipeline import Pipeline
+# from sklearn.metrics import accuracy_score
+# from sklearn.preprocessing import StandardScaler
+# from sklearn.discriminant_analysis import LinearDiscriminantAnalysis
 
-from mne.decoding import CSP
-import os
+# from mne.decoding import CSP
+# import os
 
 
 def read_edf(file: str) -> np.ndarray:
     raw = read_raw_edf(file, preload=True)
+    # print("RAW DATA IS", raw)
     raw.plot()
+    # plt.title("Raw data")
     plt.show()
-    raw.filter(4, 14)
+    raw.filter(8, 14)
     raw.plot()
+    # plt.title("Filtered data")
     plt.show()
     event_id = {
         "T1": 2,
@@ -34,10 +37,10 @@ def read_edf(file: str) -> np.ndarray:
         preload=True
     )
     epochs.drop_bad()
-    print(epochs)
+    # print(epochs)
     np_data = epochs.get_data()
     labels = epochs.events[:, -1]
-    print(np_data[1])
+    # print(np_data[1])
 
     plt.plot(np_data[0][1])
     plt.show()
