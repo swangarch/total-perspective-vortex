@@ -11,3 +11,9 @@ __pycache__
 .env
 
 dataset_metadata
+
+ARCHIVE
+
+OLD
+
+train_improve.py
