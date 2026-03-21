@@ -15,11 +15,8 @@ from mne.decoding import CSP
 import os
 import random as rd
 
-from mne.preprocessing import ICA
-
 # rd.seed(42)
 rd.seed(2402)
-# rd.seed(42)
 
 
 def get_event(raw) -> dict:
@@ -47,15 +44,8 @@ def read_edf(file: str, plot: bool = False) -> np.ndarray:
         raw.plot()
         plt.show()
     raw.filter(8, 30)
-    raw.pick("eeg")
-    
     if plot:
         print(f"Visualize filtered raw edf file: {file}")
-        raw.plot()
-        plt.show()
-    ica = ICA(n_components=20, random_state=97, max_iter=800)
-    ica.fit(raw)
-    if plot:
         raw.plot()
         plt.show()
     events, event_id = get_event(raw)
@@ -63,11 +53,10 @@ def read_edf(file: str, plot: bool = False) -> np.ndarray:
         raw,
         events=events,
         event_id=event_id,
-        tmin=-0.5,
-        tmax=4,
+        tmin=0,
+        tmax=4.0,
         baseline=None,
-        preload=True,
-        # reject=dict(eeg=250e-6)
+        preload=True
     )
     epochs.drop_bad()
     np_data = epochs.get_data()
@@ -82,7 +71,7 @@ def read_edf(file: str, plot: bool = False) -> np.ndarray:
 
 
 def read_datafolder(path: str, runs: list) -> tuple:
-    folders = sorted(os.listdir(path))
+    folders = os.listdir(path)
     subjects = []
     count = 0
     for folder in folders: # each subject
@@ -107,7 +96,7 @@ def create_dataset_arr(subjects: list) -> tuple:
     yarr = []
     for sub in subjects:
         for res in sub:
-            if res[0].shape[-1] == 721:
+            if res[0].shape[-1] == 641:
                 Xarr.append(res[0])
                 yarr.append(res[1])
     X = np.concatenate(Xarr, axis=0)
