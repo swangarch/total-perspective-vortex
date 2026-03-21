@@ -2,6 +2,7 @@ import mne
 import sys
 from srcs import train, read_datafolder, split_dataset
 import joblib
+import os
 
 import warnings
 warnings.filterwarnings("ignore")
@@ -17,12 +18,13 @@ def main():
     ]
     scores = []
     accs = []
+    os.makedirs("models", exist_ok=True)
     for i, run in enumerate(runs):
         print(f"Loading edf file loaded for current runs {i}:  {runs[i]}")
         subjects = read_datafolder(sys.argv[1], run)
         X, y, X_test, y_test = split_dataset(subjects)
         pipe, score = train(X, y, "lda")
-        joblib.dump(pipe, f"ttv_{i}.pkl")
+        joblib.dump(pipe, f"models/ttv_{i}.pkl")
         scores.append(score)
         print("Testing")
         acc = pipe.score(X_test, y_test)

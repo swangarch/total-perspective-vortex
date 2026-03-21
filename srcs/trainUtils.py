@@ -1,24 +1,11 @@
-# from mne.io import concatenate_raws, read_raw_edf
-# import matplotlib.pyplot as plt
-# import mne
-# import sys
-# import numpy as np
-
 from sklearn.neural_network import MLPClassifier
 from sklearn.pipeline import Pipeline
 from sklearn.linear_model import LogisticRegression
-# from sklearn.metrics import accuracy_score
 from sklearn.preprocessing import StandardScaler
-# from sklearn.discriminant_analysis import LinearDiscriminantAnalysis
 from sklearn.model_selection import cross_val_score # StratifiedKFold
 
 from mne.decoding import CSP, Scaler
-# from sklearn.decomposition import PCA
-# import os
 from sklearn.svm import SVC
-from xgboost import XGBClassifier
-# from pyriemann.estimation import Covariances
-# from pyriemann.tangentspace import TangentSpace
 
 from mne.decoding import UnsupervisedSpatialFilter
 
@@ -36,7 +23,6 @@ def pipe_setup(setting: str) -> Pipeline:
             ])
     elif setting == "lda":
         return Pipeline([
-                # ('pca', UnsupervisedSpatialFilter(PCA(n_components=20))), 
                 ('CSP', CSP(n_components=10, reg='ledoit_wolf', log=True, norm_trace=True)),
                 ("scaler", StandardScaler()),
                 ('LDA', LDA(solver='lsqr', shrinkage='auto'))
@@ -47,19 +33,6 @@ def pipe_setup(setting: str) -> Pipeline:
                 ("scaler", StandardScaler()),
                 ('SVM', SVC(kernel='rbf', C=1.0, gamma='scale'))
             ])
-    # elif setting == "xgb":
-    #     return Pipeline([
-    #             ('CSP', CSP(n_components=10, reg='ledoit_wolf', log=True, norm_trace=True)),
-    #             ("scaler", StandardScaler()),
-    #             ('XGB', XGBClassifier(
-    #                 n_estimators=100,
-    #                 max_depth=4,
-    #                 learning_rate=0.1,
-    #                 use_label_encoder=False,
-    #                 eval_metric='logloss',
-    #                 random_state=42
-    #             ))
-    #         ])
     elif setting == "mlp":
         return Pipeline([
                 ('CSP', CSP(n_components=64, reg='ledoit_wolf',  log=True)),

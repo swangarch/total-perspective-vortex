@@ -6,18 +6,14 @@ import numpy as np
 
 from sklearn.neural_network import MLPClassifier
 from sklearn.pipeline import Pipeline
-# from sklearn.metrics import accuracy_score
-# from sklearn.preprocessing import StandardScaler
-# from sklearn.discriminant_analysis import LinearDiscriminantAnalysis
 from sklearn.model_selection import cross_val_score
 from sklearn.model_selection import train_test_split
 from mne.decoding import CSP
 import os
 import random as rd
-
 from mne.preprocessing import ICA
 
-# rd.seed(42)
+
 rd.seed(2402)
 # rd.seed(42)
 
