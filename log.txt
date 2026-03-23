@@ -1,0 +1,171 @@
+$> python train.py dataset
+Loading edf file loaded for current runs 0:  ['R03', 'R07', 'R11']
+All 327 edf file loaded for current runs.
+
+Dataset has been splitted based on subjects
+Warning: no standard length data is dropped.
+Warning: no standard length data is dropped.
+Warning: no standard length data is dropped.
+Warning: no standard length data is dropped.
+Warning: no standard length data is dropped.
+Warning: no standard length data is dropped.
+Warning: no standard length data is dropped.
+Warning: no standard length data is dropped.
+Warning: no standard length data is dropped.
+Warning: no standard length data is dropped.
+Warning: no standard length data is dropped.
+Warning: no standard length data is dropped.
+Warning: no standard length data is dropped.
+248 / 261 data are used, 13 are dropped
+66 / 66 data are used, 0 are dropped
+Dataset has been splitted to train set and test set.
+X shape: (3373, 64, 641)    y shape: (3373,)
+Training with cross validation. classifier: lda
+---- n_comps: 6  cross validation score: 0.5932691504560942
+Training with cross validation. classifier: lda
+---- n_comps: 7  cross validation score: 0.607488735025827
+Training with cross validation. classifier: lda
+---- n_comps: 8  cross validation score: 0.6154904934608199
+Training with cross validation. classifier: lda
+---- n_comps: 9  cross validation score: 0.6128251456203978
+Training with cross validation. classifier: lda
+---- n_comps: 10  cross validation score: 0.6071902406857896
+Training with cross validation. classifier: lda
+---- n_comps: 12  cross validation score: 0.6012550829761512
+Training with cross validation. classifier: lda
+---- n_comps: 14  cross validation score: 0.60303505879767
+Training with cross validation. classifier: lda
+---- n_comps: 15  cross validation score: 0.6018503132212331
+Training with no cross validation. classifier lda  n_comps: 8
+Testing
+Run 0 ---> final cross validation score: 0.6154904934608199   accuracy: 0.6850477200424178
+
+Loading edf file loaded for current runs 1:  ['R04', 'R08', 'R12']
+All 327 edf file loaded for current runs.
+
+Dataset has been splitted based on subjects
+Warning: no standard length data is dropped.
+Warning: no standard length data is dropped.
+Warning: no standard length data is dropped.
+Warning: no standard length data is dropped.
+Warning: no standard length data is dropped.
+Warning: no standard length data is dropped.
+Warning: no standard length data is dropped.
+Warning: no standard length data is dropped.
+Warning: no standard length data is dropped.
+Warning: no standard length data is dropped.
+Warning: no standard length data is dropped.
+250 / 261 data are used, 11 are dropped
+Warning: no standard length data is dropped.
+Warning: no standard length data is dropped.
+Warning: no standard length data is dropped.
+63 / 66 data are used, 3 are dropped
+Dataset has been splitted to train set and test set.
+X shape: (3393, 64, 641)    y shape: (3393,)
+Training with cross validation. classifier: lda
+---- n_comps: 6  cross validation score: 0.6201067855296485
+Training with cross validation. classifier: lda
+---- n_comps: 7  cross validation score: 0.6156885233794275
+Training with cross validation. classifier: lda
+---- n_comps: 8  cross validation score: 0.6159765575786011
+Training with cross validation. classifier: lda
+---- n_comps: 9  cross validation score: 0.6112624412961973
+Training with cross validation. classifier: lda
+---- n_comps: 10  cross validation score: 0.6142088182777902
+Training with cross validation. classifier: lda
+---- n_comps: 12  cross validation score: 0.608903428171743
+Training with cross validation. classifier: lda
+---- n_comps: 14  cross validation score: 0.6094973086397227
+Training with cross validation. classifier: lda
+---- n_comps: 15  cross validation score: 0.6086140906504013
+Training with no cross validation. classifier lda  n_comps: 6
+Testing
+Run 1 ---> final cross validation score: 0.6201067855296485   accuracy: 0.6230425055928411
+
+Loading edf file loaded for current runs 2:  ['R05', 'R09', 'R13']
+All 327 edf file loaded for current runs.
+
+Dataset has been splitted based on subjects
+Warning: no standard length data is dropped.
+Warning: no standard length data is dropped.
+Warning: no standard length data is dropped.
+Warning: no standard length data is dropped.
+Warning: no standard length data is dropped.
+Warning: no standard length data is dropped.
+Warning: no standard length data is dropped.
+Warning: no standard length data is dropped.
+Warning: no standard length data is dropped.
+Warning: no standard length data is dropped.
+251 / 261 data are used, 10 are dropped
+Warning: no standard length data is dropped.
+Warning: no standard length data is dropped.
+Warning: no standard length data is dropped.
+63 / 66 data are used, 3 are dropped
+Dataset has been splitted to train set and test set.
+X shape: (3290, 64, 641)    y shape: (3290,)
+Training with cross validation. classifier: lda
+---- n_comps: 6  cross validation score: 0.5963525835866261
+Training with cross validation. classifier: lda
+---- n_comps: 7  cross validation score: 0.601823708206687
+Training with cross validation. classifier: lda
+---- n_comps: 8  cross validation score: 0.6082066869300913
+Training with cross validation. classifier: lda
+---- n_comps: 9  cross validation score: 0.6145896656534954
+Training with cross validation. classifier: lda
+---- n_comps: 10  cross validation score: 0.6218844984802432
+Training with cross validation. classifier: lda
+---- n_comps: 12  cross validation score: 0.6306990881458967
+Training with cross validation. classifier: lda
+---- n_comps: 14  cross validation score: 0.6376899696048632
+Training with cross validation. classifier: lda
+---- n_comps: 15  cross validation score: 0.6361702127659574
+Training with no cross validation. classifier lda  n_comps: 14
+Testing
+Run 2 ---> final cross validation score: 0.6376899696048632   accuracy: 0.6365767878077374
+
+Loading edf file loaded for current runs 3:  ['R06', 'R10', 'R14']
+All 327 edf file loaded for current runs.
+
+Dataset has been splitted based on subjects
+Warning: no standard length data is dropped.
+Warning: no standard length data is dropped.
+Warning: no standard length data is dropped.
+Warning: no standard length data is dropped.
+Warning: no standard length data is dropped.
+Warning: no standard length data is dropped.
+Warning: no standard length data is dropped.
+Warning: no standard length data is dropped.
+Warning: no standard length data is dropped.
+Warning: no standard length data is dropped.
+Warning: no standard length data is dropped.
+Warning: no standard length data is dropped.
+Warning: no standard length data is dropped.
+Warning: no standard length data is dropped.
+247 / 261 data are used, 14 are dropped
+Warning: no standard length data is dropped.
+65 / 66 data are used, 1 are dropped
+Dataset has been splitted to train set and test set.
+X shape: (3364, 64, 641)    y shape: (3364,)
+Training with cross validation. classifier: lda
+---- n_comps: 6  cross validation score: 0.5927514505059082
+Training with cross validation. classifier: lda
+---- n_comps: 7  cross validation score: 0.5969172327177528
+Training with cross validation. classifier: lda
+---- n_comps: 8  cross validation score: 0.5995918240996251
+Training with cross validation. classifier: lda
+---- n_comps: 9  cross validation score: 0.6031614837614095
+Training with cross validation. classifier: lda
+---- n_comps: 10  cross validation score: 0.6046464834076276
+Training with cross validation. classifier: lda
+---- n_comps: 12  cross validation score: 0.6067276056039058
+Training with cross validation. classifier: lda
+---- n_comps: 14  cross validation score: 0.5984000212269157
+Training with cross validation. classifier: lda
+---- n_comps: 15  cross validation score: 0.601370904974174
+Training with no cross validation. classifier lda  n_comps: 12
+Testing
+Run 3 ---> final cross validation score: 0.6067276056039058   accuracy: 0.6643437862950058
+
+
+The final score of cross validation is:  0.6200037135498093
+The final test accuracy is:  0.6522526999345005

@@ -1,20 +1,13 @@
-from mne.io import concatenate_raws, read_raw_edf
+from mne.io import read_raw_edf
 import matplotlib.pyplot as plt
 import mne
-import sys
 import numpy as np
-
-from sklearn.neural_network import MLPClassifier
-from sklearn.pipeline import Pipeline
-from sklearn.model_selection import cross_val_score
-from sklearn.model_selection import train_test_split
-from mne.decoding import CSP
 import os
 import random as rd
-from mne.preprocessing import ICA
 
 
 rd.seed(2402)
+np.random.seed(42)
 # rd.seed(42)
 
 
@@ -49,23 +42,21 @@ def read_edf(file: str, plot: bool = False) -> np.ndarray:
         print(f"Visualize filtered raw edf file: {file}")
         raw.plot()
         plt.show()
-    ica = ICA(n_components=20, random_state=97, max_iter=800)
-    ica.fit(raw)
-    if plot:
-        raw.plot()
-        plt.show()
     events, event_id = get_event(raw)
     epochs = mne.Epochs(
         raw,
         events=events,
         event_id=event_id,
-        tmin=-0.5,
+        tmin=-1,
         tmax=4,
-        baseline=None,
+        baseline=(-1, 0),
         preload=True,
-        # reject=dict(eeg=250e-6)
+        reject=dict(eeg=420e-6)
     )
     epochs.drop_bad()
+    if len(epochs) == 0:                                 
+        return np.array([]), np.array([])  
+    epochs.crop(tmin=0, tmax=4)
     np_data = epochs.get_data()
     labels = epochs.events[:, -1]
     if plot:
@@ -101,11 +92,18 @@ def read_datafolder(path: str, runs: list) -> tuple:
 def create_dataset_arr(subjects: list) -> tuple:
     Xarr = []
     yarr = []
+    read_count = 0
+    drop_count = 0
     for sub in subjects:
         for res in sub:
-            if res[0].shape[-1] == 721:
+            if res[0].shape[-1] == 641: #: #721:
                 Xarr.append(res[0])
                 yarr.append(res[1])
+                read_count += 1
+            else:
+                print("\033[33mWarning: no standard length data is dropped.\033[0m")
+                drop_count += 1
+    print(f"{read_count} / {read_count + drop_count} data are used, {drop_count} are dropped")
     X = np.concatenate(Xarr, axis=0)
     y = np.concatenate(yarr, axis=0)
     return X, y
