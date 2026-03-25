@@ -6,13 +6,14 @@ from sklearn.model_selection import cross_val_score
 from mne.decoding import CSP
 from sklearn.svm import SVC
 from sklearn.discriminant_analysis import LinearDiscriminantAnalysis as LDA
+from xgboost import XGBClassifier
 
 
 def pipe_setup(setting: str, n: int) -> Pipeline:
     if setting == "logreg":    
         return Pipeline([
-                ("scaler", StandardScaler()),
                 ('CSP', CSP(n_components=n, reg='ledoit_wolf',  log=True)),
+                ("scaler", StandardScaler()),
                 ("clf", LogisticRegression(max_iter=1000)),
             ])
     elif setting == "lda":
@@ -26,12 +27,23 @@ def pipe_setup(setting: str, n: int) -> Pipeline:
                 ("scaler", StandardScaler()),
                 ('SVM', SVC(kernel='rbf', C=1.0, gamma='scale'))
             ])
+    elif setting == "xgb":
+        return Pipeline([
+                ('CSP', CSP(n_components=n, reg='ledoit_wolf', log=True, norm_trace=True)),
+                ("scaler", StandardScaler()),
+                ('XGBOOST', XGBClassifier(n_estimators=100,
+                    max_depth=3,
+                    learning_rate=0.1,
+                    use_label_encoder=False,
+                    eval_metric='logloss'
+                ))
+            ])
     elif setting == "mlp":
         return Pipeline([
-                ('CSP', CSP(n_components=n, reg='ledoit_wolf',  log=True)),
+                ('CSP', CSP(n_components=16, reg='ledoit_wolf',  log=True)),
                 ("scaler", StandardScaler()),
                 ("mlp", MLPClassifier(
-                    hidden_layer_sizes=(64, 32),  
+                    hidden_layer_sizes=(16, 8),  
                     activation='relu',           
                     solver='adam',                
                     alpha=1e-4,                
@@ -45,10 +57,13 @@ def pipe_setup(setting: str, n: int) -> Pipeline:
         raise ValueError("Wrong training pipeline")
 
 
-def train(X, y, pipe_setting="logreg"):
+def train(X, y, pipe_setting="logreg", search_param: bool = True):
     print(f"X shape: {X.shape}    y shape: {y.shape}")
 
-    n_comps = [6, 7, 8, 9, 10, 12, 14, 15]
+    if search_param:
+        n_comps = [6, 7, 8, 9, 10, 12, 14, 16]
+    else:
+        n_comps = [8]
 
     max_score = 0
     max_pipe = pipe_setup(pipe_setting, n_comps[0])

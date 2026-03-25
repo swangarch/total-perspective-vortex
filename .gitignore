@@ -4,6 +4,8 @@ data
 
 dataset
 
+.DS_Store
+
 physionet.org
 
 __pycache__

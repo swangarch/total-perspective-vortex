@@ -58,7 +58,11 @@ def read_edf(file: str, plot: bool = False) -> np.ndarray:
         return np.array([]), np.array([])  
     epochs.crop(tmin=0, tmax=4)
     np_data = epochs.get_data()
-    labels = epochs.events[:, -1]
+    # labels = epochs.events[:, -1]
+    raw_labels = epochs.events[:, -1]
+    label_map = {v: i for i, v in enumerate(event_id.values())}
+    labels = np.array([label_map[l] for l in raw_labels]) 
+    # map label from 1 2 3 to 0 or 0, 1
     if plot:
         plt.title("Single epoch in 1 channel example.")
         plt.xlabel("time")
@@ -89,6 +93,36 @@ def read_datafolder(path: str, runs: list) -> tuple:
     return subjects
 
 
+def read_data_subject(path: str, runs: list) -> tuple:
+    files = sorted(os.listdir(path))
+    count = 0
+    Xarr = []
+    yarr = []
+    for file in files: # each subject
+        if not file.endswith(".edf"): 
+            continue
+        if not file[-7:-4] in runs:
+            continue
+        filepath = os.path.join(path, file)
+        print(filepath)
+        res = read_edf(filepath)
+        if res[0].shape[-1] == 641:
+            Xarr.append(res[0])
+            yarr.append(res[1])
+        else:
+            print("\033[33mWarning: no standard length data is dropped.\033[0m")
+        count += 1
+    X = np.concatenate(Xarr, axis=0)
+    y = np.concatenate(yarr, axis=0)
+    print("X size of dataset", X.shape)
+    print("y size of dataset", y.shape)
+
+    print(f"T1 count: {np.sum(y==0)}   T2 count: {np.sum(y==1)}\n")
+    
+    print(f"All {count} edf file loaded for current runs.\n")
+    return X, y
+
+
 def create_dataset_arr(subjects: list) -> tuple:
     Xarr = []
     yarr = []
@@ -106,6 +140,10 @@ def create_dataset_arr(subjects: list) -> tuple:
     print(f"{read_count} / {read_count + drop_count} data are used, {drop_count} are dropped")
     X = np.concatenate(Xarr, axis=0)
     y = np.concatenate(yarr, axis=0)
+    
+    print("X size of dataset", X.shape)
+    print("y size of dataset", y.shape)
+    print(f"T1 count: {np.sum(y==0)}   T2 count: {np.sum(y==1)}\n")
     return X, y
 
 
@@ -117,5 +155,21 @@ def split_dataset(subjects: list, rate=0.8):
     print("Dataset has been splitted based on subjects")
     X, y = create_dataset_arr(train_sub)
     X_test, y_test = create_dataset_arr(test_sub)
+    print("Dataset has been splitted to train set and test set.")
+    return X, y, X_test, y_test
+
+
+def split_dataset_subject(Xarr: np.array, yarr: np.array, rate=0.8):
+    indices = np.random.permutation(len(Xarr))
+    split = int(rate * len(Xarr))
+    train_idx = indices[:split]
+    test_idx = indices[split:]
+
+    X = Xarr[train_idx]
+    X_test = Xarr[test_idx]
+
+    y = yarr[train_idx]
+    y_test = yarr[test_idx]
+
     print("Dataset has been splitted to train set and test set.")
     return X, y, X_test, y_test
