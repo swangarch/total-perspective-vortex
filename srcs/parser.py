@@ -6,9 +6,7 @@ import os
 import random as rd
 
 
-rd.seed(2402)
-np.random.seed(42)
-# rd.seed(42)
+SEED = 2402
 
 
 def get_event(raw) -> dict:
@@ -35,6 +33,7 @@ def read_edf(file: str, plot: bool = False) -> np.ndarray:
         print(f"Visualize raw edf file: {file}")
         raw.plot()
         plt.show()
+    raw.resample(160)
     raw.filter(8, 30)
     raw.pick("eeg")
     
@@ -93,36 +92,6 @@ def read_datafolder(path: str, runs: list) -> tuple:
     return subjects
 
 
-def read_data_subject(path: str, runs: list) -> tuple:
-    files = sorted(os.listdir(path))
-    count = 0
-    Xarr = []
-    yarr = []
-    for file in files: # each subject
-        if not file.endswith(".edf"): 
-            continue
-        if not file[-7:-4] in runs:
-            continue
-        filepath = os.path.join(path, file)
-        print(filepath)
-        res = read_edf(filepath)
-        if res[0].shape[-1] == 641:
-            Xarr.append(res[0])
-            yarr.append(res[1])
-        else:
-            print("\033[33mWarning: no standard length data is dropped.\033[0m")
-        count += 1
-    X = np.concatenate(Xarr, axis=0)
-    y = np.concatenate(yarr, axis=0)
-    print("X size of dataset", X.shape)
-    print("y size of dataset", y.shape)
-
-    print(f"T1 count: {np.sum(y==0)}   T2 count: {np.sum(y==1)}\n")
-    
-    print(f"All {count} edf file loaded for current runs.\n")
-    return X, y
-
-
 def create_dataset_arr(subjects: list) -> tuple:
     Xarr = []
     yarr = []
@@ -130,16 +99,17 @@ def create_dataset_arr(subjects: list) -> tuple:
     drop_count = 0
     for sub in subjects:
         for res in sub:
-            if res[0].shape[-1] == 641: #: #721:
-                Xarr.append(res[0])
-                yarr.append(res[1])
-                read_count += 1
-            else:
-                print("\033[33mWarning: no standard length data is dropped.\033[0m")
-                drop_count += 1
+            for i, epoch in enumerate(res[0]):
+                if epoch.shape[-1] == 641: #: #721:
+                    Xarr.append(epoch)
+                    yarr.append(res[1][i])
+                    read_count += 1
+                else:
+                    print(f"\033[33mWarning: no standard length data is dropped. Length {epoch.shape[-1]}\033[0m")
+                    drop_count += 1
     print(f"{read_count} / {read_count + drop_count} data are used, {drop_count} are dropped")
-    X = np.concatenate(Xarr, axis=0)
-    y = np.concatenate(yarr, axis=0)
+    X = np.stack(Xarr, axis=0)
+    y = np.array(yarr)
     
     print("X size of dataset", X.shape)
     print("y size of dataset", y.shape)
@@ -148,6 +118,7 @@ def create_dataset_arr(subjects: list) -> tuple:
 
 
 def split_dataset(subjects: list, rate=0.8):
+    rd.seed(SEED)
     rd.shuffle(subjects)
     train_count = int(len(subjects) * rate)
     train_sub = subjects[:train_count]
@@ -159,17 +130,112 @@ def split_dataset(subjects: list, rate=0.8):
     return X, y, X_test, y_test
 
 
-def split_dataset_subject(Xarr: np.array, yarr: np.array, rate=0.8):
-    indices = np.random.permutation(len(Xarr))
-    split = int(rate * len(Xarr))
-    train_idx = indices[:split]
-    test_idx = indices[split:]
+def preprocess_cross_subject_dataset(path, run) -> tuple:
+    subjects = read_datafolder(path, run)
+    return split_dataset(subjects)
 
-    X = Xarr[train_idx]
-    X_test = Xarr[test_idx]
 
-    y = yarr[train_idx]
-    y_test = yarr[test_idx]
+## ------------------for single subject----------------------
 
-    print("Dataset has been splitted to train set and test set.")
-    return X, y, X_test, y_test
+
+# def read_data_subject(path: str, runs: list) -> tuple:
+#     files = sorted(os.listdir(path))
+#     count = 0
+#     Xarr = []
+#     yarr = []
+#     for file in files: # each subject
+#         if not file.endswith(".edf"): 
+#             continue
+#         if not file[-7:-4] in runs:
+#             continue
+#         filepath = os.path.join(path, file)
+#         print(filepath)
+#         res = read_edf(filepath)
+#         if res[0].shape[-1] == 641:
+#             Xarr.append(res[0])
+#             yarr.append(res[1])
+#         else:
+#             print("\033[33mWarning: no standard length data is dropped.\033[0m")
+#         count += 1
+#     X = np.concatenate(Xarr, axis=0)
+#     y = np.concatenate(yarr, axis=0)
+#     print("X size of dataset", X.shape)
+#     print("y size of dataset", y.shape)
+
+#     print(f"T1 count: {np.sum(y==0)}   T2 count: {np.sum(y==1)}\n")
+    
+#     print(f"All {count} edf file loaded for current runs.\n")
+#     return X, y
+
+
+# def split_dataset_subject(Xarr: np.array, yarr: np.array, rate=0.8):
+#     indices = np.random.permutation(len(Xarr))
+#     split = int(rate * len(Xarr))
+#     train_idx = indices[:split]
+#     test_idx = indices[split:]
+
+#     X = Xarr[train_idx]
+#     X_test = Xarr[test_idx]
+
+#     y = yarr[train_idx]
+#     y_test = yarr[test_idx]
+
+#     print("Dataset has been splitted to train set and test set.")
+#     return X, y, X_test, y_test
+
+
+# def preprocess_single_subject_dataset(path, run) -> tuple:
+#     X, y = read_data_subject(path, run)
+#     return split_dataset_subject(X, y)
+
+
+def read_data_subject(path: str, runs: list, test_idx: int = 2) -> tuple:
+    files = sorted(os.listdir(path))
+    count = 0
+
+    read_res = []
+    for file in files: # each subject
+        if not file.endswith(".edf"): 
+            continue
+        if not file[-7:-4] in runs:
+            continue
+        filepath = os.path.join(path, file)
+        print(filepath)
+        res = read_edf(filepath)
+        read_res.append(res)
+        count += 1
+        
+    print(f"All {count} edf file loaded for current runs.\n")
+
+    X_train_arr = []
+    y_train_arr = []
+
+    X_test_arr = []
+    y_test_arr = []
+    for i, res in enumerate(read_res):
+        for j, epoch in enumerate(res[0]):
+            if epoch.shape[-1] == 641:
+                if i != test_idx:
+                    X_train_arr.append(epoch)
+                    y_train_arr.append(res[1][j])
+                else:
+                    X_test_arr.append(epoch)
+                    y_test_arr.append(res[1][j])
+            else:
+                print(f"\033[33mWarning: no standard length data is dropped, shape {epoch.shape[-1]}.\033[0m")
+
+    X_train = np.stack(X_train_arr, axis=0)
+    y_train = np.array(y_train_arr)
+    print("X size of dataset", X_train.shape)
+    print("y size of dataset", y_train.shape)
+
+    X_test = np.stack(X_test_arr, axis=0)
+    y_test = np.array(y_test_arr)
+    print("X size of dataset", X_test.shape)
+    print("y size of dataset", y_test.shape)
+
+    return X_train, y_train, X_test, y_test
+
+
+def preprocess_single_subject_dataset(path, run) -> tuple:
+    return read_data_subject(path, run)

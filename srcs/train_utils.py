@@ -14,7 +14,7 @@ def pipe_setup(setting: str, n: int) -> Pipeline:
         return Pipeline([
                 ('CSP', CSP(n_components=n, reg='ledoit_wolf',  log=True)),
                 ("scaler", StandardScaler()),
-                ("clf", LogisticRegression(max_iter=1000)),
+                ("clf", LogisticRegression(max_iter=1000, C=0.1)),
             ])
     elif setting == "lda":
         return Pipeline([
@@ -25,7 +25,7 @@ def pipe_setup(setting: str, n: int) -> Pipeline:
         return Pipeline([
                 ('CSP', CSP(n_components=n, reg='ledoit_wolf', log=True, norm_trace=True)),
                 ("scaler", StandardScaler()),
-                ('SVM', SVC(kernel='rbf', C=1.0, gamma='scale'))
+                ('SVM', SVC(kernel='rbf', C=0.1, gamma='scale'))
             ])
     elif setting == "xgb":
         return Pipeline([
@@ -40,10 +40,10 @@ def pipe_setup(setting: str, n: int) -> Pipeline:
             ])
     elif setting == "mlp":
         return Pipeline([
-                ('CSP', CSP(n_components=16, reg='ledoit_wolf',  log=True)),
+                ('CSP', CSP(n_components=n, reg='ledoit_wolf',  log=True)),
                 ("scaler", StandardScaler()),
                 ("mlp", MLPClassifier(
-                    hidden_layer_sizes=(16, 8),  
+                    hidden_layer_sizes=(32, 16),  
                     activation='relu',           
                     solver='adam',                
                     alpha=1e-4,                
@@ -57,29 +57,31 @@ def pipe_setup(setting: str, n: int) -> Pipeline:
         raise ValueError("Wrong training pipeline")
 
 
-def train(X, y, pipe_setting="logreg", search_param: bool = True):
+def train(X, y, pipe_setting="logreg", n_comp: int = 8, search_param: bool = True):
     print(f"X shape: {X.shape}    y shape: {y.shape}")
 
     if search_param:
         n_comps = [6, 7, 8, 9, 10, 12, 14, 16]
     else:
-        n_comps = [8]
-
+        n_comps = [n_comp]
+    pipes = [pipe_setting]
+    
     max_score = 0
     max_pipe = pipe_setup(pipe_setting, n_comps[0])
     max_ncomp = 0
     
     for n_comp in n_comps:
-        pipe = pipe_setup(pipe_setting, n_comp)
-        print(f"Training with cross validation. classifier: {pipe_setting}")
-        scores = cross_val_score(pipe, X, y, cv=5)
+        for p in pipes:
+            pipe = pipe_setup(p, n_comp)
+            print(f"Training with cross validation. classifier: {p}")
+            scores = cross_val_score(pipe, X, y, cv=5)
 
-        curr_score = scores.mean()
-        if curr_score > max_score:
-            max_score = curr_score
-            max_pipe = pipe
-            max_ncomp = n_comp
-        print(f"---- n_comps: {n_comp}  cross validation score: {scores.mean()}")
+            curr_score = scores.mean()
+            if curr_score > max_score:
+                max_score = curr_score
+                max_pipe = pipe
+                max_ncomp = n_comp
+            print(f"---- n_comps: {n_comp}  cross validation score: {scores.mean()}")
 
     print(f"Training with no cross validation. classifier {pipe_setting}  n_comps: {max_ncomp}")
     max_pipe.fit(X, y)

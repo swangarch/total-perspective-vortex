@@ -1,9 +1,11 @@
 import mne
 import sys
-from srcs import train, read_datafolder, split_dataset, read_data_subject, split_dataset_subject
+from srcs import load_config, train, preprocess_cross_subject_dataset, preprocess_single_subject_dataset
 import joblib
 import os
 import argparse
+import numpy as np
+import random as rd
 
 import warnings
 warnings.filterwarnings("ignore")
@@ -27,8 +29,7 @@ def select_task(task: int) -> list:
     return runs
 
 
-def run_train(path: str, model: str = "lda",
-              search_param: bool = False,
+def run_train(path: str, config: dict = {},
               task: int = 1, subject: int = 0) -> None:
     mne.set_log_level('WARNING')
     runs = select_task(task)
@@ -37,16 +38,26 @@ def run_train(path: str, model: str = "lda",
     os.makedirs("models", exist_ok=True)
     for i, run in enumerate(runs):
         print(f"Loading edf file loaded for current runs {i}:  {runs[i]}")
+        if task == 0:
+            task_conf = config["task"][str(i + 1)]
+        else:
+            task_conf = config["task"][str(task)]
+
         if subject == 0: # Cross subject tests
             print(f"Training across all subjects")
-            subjects = read_datafolder(path, run)
-            X, y, X_test, y_test = split_dataset(subjects)
+            try:
+                X, y, X_test, y_test = preprocess_cross_subject_dataset(path, run)
+            except:
+                return None, None
         else:
             subject_path = os.path.join(path, "S" + str(subject).zfill(3))
             print(f"Training on single subject {subject}")
-            Xarr, yarr = read_data_subject(subject_path, run)
-            X, y, X_test, y_test = split_dataset_subject(Xarr, yarr)
-        pipe, score = train(X, y, model, search_param=search_param)
+            try:
+                X, y, X_test, y_test = preprocess_single_subject_dataset(subject_path, run)
+            except:
+                return None, None
+        pipe, score = train(X, y, task_conf["classifier"], n_comp=task_conf["n_comp"],
+                            search_param=task_conf["search_param"])
         joblib.dump(pipe, f"models/ttv_{i}.pkl")
         scores.append(score)
         print(f"Testing on the X:{X_test.shape}  Y:{y_test.shape}")
@@ -55,8 +66,11 @@ def run_train(path: str, model: str = "lda",
         print(f"Run {i} ---> final cross validation score: {score}   accuracy: {acc}\n")
 
     print()
-    print("The final score of cross validation is: ", sum(scores) / len(scores))
-    print("The final test accuracy is: ", sum(accs) / len(accs))
+    final_score = sum(scores) / len(scores)
+    final_acc = sum(accs) / len(accs)
+    print("The final score of cross validation is: ", final_score)
+    print(f"The final test accuracy is: ", final_acc)
+    return final_score, final_acc
 
 
 def parse_args():
@@ -64,18 +78,33 @@ def parse_args():
     parser.add_argument("datafolder")
     parser.add_argument("--task", "-t", type=int, default=0)
     parser.add_argument("--subject", "-s", type=int, default=0)
-    parser.add_argument("--model", "-m", type=str, default="lda")
-    parser.add_argument("--search_param", "-sm", type=bool, default=False)
+    # parser.add_argument("--model", "-m", type=str, default="lda")
+    # parser.add_argument("--search_param", "-sm", action="store_true")
     args = parser.parse_args()
     return args
 
 
 def main():
     args = parse_args()
-    run_train(args.datafolder, args.model, 
-              args.search_param,
+    config = load_config("config.json")
+
+
+    score, accs = run_train(args.datafolder, config,
+            #   args.search_param,
               args.task, args.subject)
 
+    # --------------------------------
+    # scores = []
+    # accuracies = []
+    # for i in range(1, 110, 1):
+    #     score, accs = run_train(args.datafolder, args.model, 
+    #             args.search_param,
+    #             args.task, i)
+    #     if score and accs:
+    #         scores.append(score)
+    #         accuracies.append(accs)
+    # print(f"accuracy {sum(accuracies) / 109.0}    score {sum(scores) / 109.0}")
+    
 
 if __name__ == "__main__":
     main()
