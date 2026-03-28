@@ -6,7 +6,9 @@ import os
 import random as rd
 
 
-SEED = 2402
+SEED = 2402 # 0.6599
+SEED = 24921 # 0.658
+SEED = 21
 
 
 def get_event(raw) -> dict:
@@ -57,7 +59,6 @@ def read_edf(file: str, plot: bool = False) -> np.ndarray:
         return np.array([]), np.array([])  
     epochs.crop(tmin=0, tmax=4)
     np_data = epochs.get_data()
-    # labels = epochs.events[:, -1]
     raw_labels = epochs.events[:, -1]
     label_map = {v: i for i, v in enumerate(event_id.values())}
     labels = np.array([label_map[l] for l in raw_labels]) 
