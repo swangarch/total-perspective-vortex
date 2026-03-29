@@ -10,15 +10,22 @@ from xgboost import XGBClassifier
 from pyriemann.estimation import Covariances
 # from pyriemann.classification import MDM
 from pyriemann.tangentspace import TangentSpace
+from .logreg import my_logreg
 # from sklearn.decomposition import PCA
 
 
 def pipe_setup(setting: str, n: int) -> Pipeline:
     if setting == "logreg":    
         return Pipeline([
-                ('CSP', CSP(n_components=n, reg='ledoit_wolf',  log=True)),
+                ('CSP', CSP(n_components=n, reg='ledoit_wolf', log=True)),
                 ("scaler", StandardScaler()),
                 ("clf", LogisticRegression(max_iter=1000, C=0.1)),
+            ])
+    if setting == "my_logreg":    
+        return Pipeline([
+                ('CSP', CSP(n_components=n, reg='ledoit_wolf', log=True)),
+                ("scaler", StandardScaler()),
+                ("clf", my_logreg(max_iter=1000, learning_rate=0.01, C=0.1)),
             ])
     elif setting == "lda":
         return Pipeline([
@@ -79,7 +86,7 @@ def train(X, y, pipe_setting="logreg", n_comp: int = 8, search_param: bool = Tru
         n_comps = [n_comp]
     pipes = [pipe_setting]
     
-    max_score = 0
+    max_score = -1
     max_pipe = pipe_setup(pipe_setting, n_comps[0])
     max_ncomp = 0
     
