@@ -1,6 +1,7 @@
 from .parser import (read_datafolder, 
                         read_edf, 
-                        read_data_subject, 
+                        read_data_subject,
+                        read_data_single,
                         # split_dataset_subject,
                         preprocess_cross_subject_dataset,
                         preprocess_single_subject_dataset
@@ -8,15 +9,19 @@ from .parser import (read_datafolder,
 from .train_utils import train
 from .config import load_config
 from .plot import show_confusion_matrix
+from .task import select_task, select_label
 
 
 __all__ = [
             # "read_datafolder", 
-            # "read_data_subject", 
+            # "read_data_subject",
+            "read_data_single", 
             "read_edf", #"split_dataset"
             # "split_dataset_subject",
             "preprocess_cross_subject_dataset",
             "preprocess_single_subject_dataset",
             "train",
-            "show_confusion_matrix"
+            "show_confusion_matrix",
+            "select_task",
+            "select_label"
         ]

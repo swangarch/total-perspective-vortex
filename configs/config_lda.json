@@ -3,22 +3,26 @@
         "1": {
             "n_comp": 8,
             "classifier": "lda",
-            "search_param": false
+            "search_param": false,
+            "model": "models_save/models_lda/ttv_1.pkl"
         },
         "2": {
             "n_comp": 10,
             "classifier": "lda",
-            "search_param": false
+            "search_param": false,
+            "model": "models_save/models_lda/ttv_2.pkl"
         },
         "3": {
             "n_comp": 16,
             "classifier": "lda",
-            "search_param": false
+            "search_param": false,
+            "model": "models_save/models_lda/ttv_3.pkl"
         },
         "4": {
             "n_comp": 22,
             "classifier": "lda",
-            "search_param": false
+            "search_param": false,
+            "model": "models_save/models_lda/ttv_4.pkl"
         }
     }
 }

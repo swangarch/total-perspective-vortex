@@ -3,7 +3,8 @@ import sys
 from srcs import (load_config, train, 
                   preprocess_cross_subject_dataset, 
                   preprocess_single_subject_dataset,
-                  show_confusion_matrix)
+                  show_confusion_matrix,
+                  select_label, select_task)
 import joblib
 import os
 import argparse
@@ -16,37 +17,6 @@ import warnings
 warnings.filterwarnings("ignore")
 
 
-def select_task(task: int) -> list:
-    runs = [
-        [ "R03", "R07", "R11"],
-        [ "R04", "R08", "R12"],
-        [ "R05", "R09", "R13"],
-        [ "R06", "R10", "R14"],
-    ]
-    if task == 0:
-        runs = runs
-        print("Train model on all tasks")
-    elif task in [1, 2, 3, 4]:
-        runs = [runs[task - 1]]
-        print(f"Train model on task {task}")
-    else:
-        raise ValueError("Wrong task ID")
-    return runs
-
-
-def select_label(task: int) -> list:
-    # print(task, type(task))
-    if task not in [1, 2, 3, 4]:
-        raise ValueError("Wrong task number")
-    labels = [
-        ["Task1 - open and close left or right fist", "left fist", "right fist"],
-        ["Task2 - imagine opening and closing left or right fist", "left fist", "right fist"],
-        ["Task3 - open and close both fists or both feet", "booth fist", "booth feet"],
-        ["Task4 - imagine opening and closing both fists or both feet", "booth fist", "booth feet"]
-    ]
-    return labels[task - 1]
-
-
 def run_train(path: str, config: dict = {},
               task: int = 1, subject: int = 0) -> None:
     mne.set_log_level('WARNING')
@@ -57,32 +27,27 @@ def run_train(path: str, config: dict = {},
     for i, run in enumerate(runs):
         print(f"Loading edf file loaded for current runs {i}:  {runs[i]}")
         if task == 0:
-            task_conf = config["task"][str(i + 1)]
+            task_index = i + 1
         else:
-            task_conf = config["task"][str(task)]
-        if subject == 0: # Cross subject tests
-            print(f"Training across all subjects")
-            try:
+            task_index = task
+        task_conf = config["task"][str(task_index)]
+        try:
+            if subject == 0: # Cross subject tests
+                print(f"Training across all subjects")
                 X, y, X_test, y_test = preprocess_cross_subject_dataset(path, run)
-            except:
-                return None, None
-        else:
-            subject_path = os.path.join(path, "S" + str(subject).zfill(3))
-            print(f"Training on single subject {subject}")
-            try:
+            else:
+                subject_path = os.path.join(path, "S" + str(subject).zfill(3))
+                print(f"Training on single subject {subject}")
                 X, y, X_test, y_test = preprocess_single_subject_dataset(subject_path, run)
-            except:
-                return None, None
+        except:
+            return None, None
         pipe, score = train(X, y, task_conf["classifier"], n_comp=task_conf["n_comp"],
                             search_param=task_conf["search_param"])
-        joblib.dump(pipe, f"models/ttv_{i}.pkl")
+        joblib.dump(pipe, f"models/ttv_{task_index}.pkl")
         scores.append(score)
         print(f"Testing on the X:{X_test.shape}  Y:{y_test.shape}")
         acc = pipe.score(X_test, y_test)
-        if task == 0:
-            labels = select_label(i + 1)
-        else:
-            labels = select_label(task)
+        labels = select_label(task_index)
         y_pred = pipe.predict(X_test)
         print(classification_report(y_test, y_pred, target_names=labels[1:]))
         show_confusion_matrix(y_test, y_pred, labels)

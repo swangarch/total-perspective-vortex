@@ -1,42 +1,74 @@
 # Total-pespective-vortex
 
+(Ongoing)
 
 ## Overview
 
 This project is a machine learning task on EEG imaginary experiments prediction.
 
-Based on the physionet dataset,
+The project consists of 4 parts:
+- EEG data processing
+- Visualization of edf file
+- Dimensionality reduction algorithm
+- Classification train / predict
 
 
 ## Gettting started
 
+The project is using python with mne, scikit-learn, to setup the environment:
+
+```bash
+make
+
+source venv/bin/activate
+```
+
+To train and predict:
+
+```bash
+python train.py dataset
+python predict.py -t 1 dataset/S089/S089R11.edf
+# here 1 is the task index to perform, the task index has to match the task type
+```
 
 ## Dataset
 
-109 subjects have been tested on 14 runs, with 64 electronode, capture the EEG signals.
-The subjects are asked to do the operation
+109 subjects have been tested on 4 tasks for 14 runs, with 64 electronode, capturing the EEG signals.
+The subjects are asked to do the binary operation during each tasks:
 
-Task1
-Task2
-Task3
-Task4
+- Task1 - open and close left or right fist
+- Task2 - imagine opening and closing left or right fist
+- Task3 - open and close both fists or both feet
+- Task4 - imagine opening and closing both fists or both feet
 
-The model has to predict the event the subject performs
+And repeat all these tasks 3 times.
+
+The experiments of 109 test subjects are store at .edf files, which can be read by mne library in python.
+
+After training the model has to predict the event type the subject performs.
 
 The minimum mean accuracy asked is 60 %, across all 4 experiments, on never seen data.
 
 
 ## EEG data
 
+We use mne to read edf files, the raw input is noisy with distruptive brain activities.
+
+Frequency filtering 8 - 30Hz to only keep the EEG signal frequency
 
 
 ## Dimensionality reduction
 
-CSP
+CSP algorithm is used for dimensionality reduction.
 
 
 ## Classification
 
+We tested different machine learning classifiers in scikit-learn.
+
+We also inplemented a customized logistic regression algorithm, compatible with sklearn pipeline object.
+
+### Training
 
 ### 64 channels raw data:
 
@@ -65,3 +97,6 @@ motor_channels = [
 | CSP + LogisticRegression| 0.677 | 0.637 | 0.630 | 0.633 | 0.644 |
 | CSP + SVM | 0.673 | 0.625 | 0.631 | 0.629 | 0.639 |
 | CSP + mlp | nan | nan | nan | nan | nan |
+
+
+### Prediction

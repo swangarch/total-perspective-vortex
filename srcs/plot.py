@@ -15,7 +15,6 @@ def show_confusion_matrix(y_test, y_pred, labels=["Prediction","left hand", "rig
     
     disp.plot(colorbar=False)
     disp.ax_.set_title(f"{labels[0]} -> f1: {f1:.3f} | acc: {acc:.3f}")
-    # print(classification_report(y_test, y_pred, target_names=labels[1:]))
     plt.show()
     plt.close()
 
