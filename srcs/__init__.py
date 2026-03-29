@@ -7,6 +7,7 @@ from .parser import (read_datafolder,
                      )
 from .train_utils import train
 from .config import load_config
+from .plot import show_confusion_matrix
 
 
 __all__ = [
@@ -16,5 +17,6 @@ __all__ = [
             # "split_dataset_subject",
             "preprocess_cross_subject_dataset",
             "preprocess_single_subject_dataset",
-            "train"
+            "train",
+            "show_confusion_matrix"
         ]

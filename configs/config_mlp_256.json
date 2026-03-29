@@ -1,22 +1,22 @@
 {
     "task": {
         "1": {
-            "n_comp": 128,
+            "n_comp": 256,
             "classifier": "mlp",
             "search_param": false
         },
         "2": {
-            "n_comp": 128,
+            "n_comp": 256,
             "classifier": "mlp",
             "search_param": false
         },
         "3": {
-            "n_comp": 128,
+            "n_comp": 256,
             "classifier": "mlp",
             "search_param": false
         },
         "4": {
-            "n_comp": 128,
+            "n_comp": 256,
             "classifier": "mlp",
             "search_param": false
         }

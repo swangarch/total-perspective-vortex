@@ -4,11 +4,11 @@ import mne
 import numpy as np
 import os
 import random as rd
+from .plot import show_single_epoch, show_edf
 
 
 SEED = 2402 # 0.6599
-SEED = 24921 # 0.658
-SEED = 21
+# SEED = 24921 # 0.658
 
 
 def get_event(raw) -> dict:
@@ -33,16 +33,19 @@ def read_edf(file: str, plot: bool = False) -> np.ndarray:
     raw = read_raw_edf(file, preload=True, verbose=False)
     if plot:
         print(f"Visualize raw edf file: {file}")
-        raw.plot()
-        plt.show()
+        show_edf(raw)
     raw.resample(160)
     raw.filter(8, 30)
     raw.pick("eeg")
-    
+    # motor_channels = [
+    #     'C3..', 'C1..', 'Cz..', 'C2..', 'C4..',  # central
+    #     'Fc3.', 'Fc1.', 'Fcz.', 'Fc2.', 'Fc4.',  # front
+    #     'Cp3.', 'Cp1.', 'Cpz.', 'Cp2.', 'Cp4.'   # back
+    # ]
+    # raw.pick(motor_channels)
     if plot:
         print(f"Visualize filtered raw edf file: {file}")
-        raw.plot()
-        plt.show()
+        show_edf(raw)
     events, event_id = get_event(raw)
     epochs = mne.Epochs(
         raw,
@@ -64,11 +67,7 @@ def read_edf(file: str, plot: bool = False) -> np.ndarray:
     labels = np.array([label_map[l] for l in raw_labels]) 
     # map label from 1 2 3 to 0 or 0, 1
     if plot:
-        plt.title("Single epoch in 1 channel example.")
-        plt.xlabel("time")
-        plt.ylabel("frequency")
-        plt.plot(np_data[0][1])
-        plt.show()
+        show_single_epoch(np_data)
     return np_data, labels
 
 
@@ -101,7 +100,7 @@ def create_dataset_arr(subjects: list) -> tuple:
     for sub in subjects:
         for res in sub:
             for i, epoch in enumerate(res[0]):
-                if epoch.shape[-1] == 641: #: #721:
+                if epoch.shape[-1] == 641: #641: #: #721:
                     Xarr.append(epoch)
                     yarr.append(res[1][i])
                     read_count += 1
@@ -111,9 +110,7 @@ def create_dataset_arr(subjects: list) -> tuple:
     print(f"{read_count} / {read_count + drop_count} data are used, {drop_count} are dropped")
     X = np.stack(Xarr, axis=0)
     y = np.array(yarr)
-    
-    print("X size of dataset", X.shape)
-    print("y size of dataset", y.shape)
+    print("X shape:", X.shape, "  ", "y shape:", y.shape)
     print(f"T1 count: {np.sum(y==0)}   T2 count: {np.sum(y==1)}\n")
     return X, y
 
@@ -170,6 +167,7 @@ def preprocess_cross_subject_dataset(path, run) -> tuple:
 
 
 # def split_dataset_subject(Xarr: np.array, yarr: np.array, rate=0.8):
+#     rd.seed(SEED)
 #     indices = np.random.permutation(len(Xarr))
 #     split = int(rate * len(Xarr))
 #     train_idx = indices[:split]
@@ -227,13 +225,11 @@ def read_data_subject(path: str, runs: list, test_idx: int = 2) -> tuple:
 
     X_train = np.stack(X_train_arr, axis=0)
     y_train = np.array(y_train_arr)
-    print("X size of dataset", X_train.shape)
-    print("y size of dataset", y_train.shape)
+    print("X shape", X_train.shape, "  ", "y shape", y_train.shape)
 
     X_test = np.stack(X_test_arr, axis=0)
     y_test = np.array(y_test_arr)
-    print("X size of dataset", X_test.shape)
-    print("y size of dataset", y_test.shape)
+    print("X shape", X_test.shape, "  ", "y shape", y_test.shape)
 
     return X_train, y_train, X_test, y_test
 

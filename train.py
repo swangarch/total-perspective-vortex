@@ -1,11 +1,16 @@
 import mne
 import sys
-from srcs import load_config, train, preprocess_cross_subject_dataset, preprocess_single_subject_dataset
+from srcs import (load_config, train, 
+                  preprocess_cross_subject_dataset, 
+                  preprocess_single_subject_dataset,
+                  show_confusion_matrix)
 import joblib
 import os
 import argparse
 import numpy as np
 import random as rd
+import matplotlib.pyplot as plt
+from sklearn.metrics import f1_score, classification_report
 
 import warnings
 warnings.filterwarnings("ignore")
@@ -29,6 +34,19 @@ def select_task(task: int) -> list:
     return runs
 
 
+def select_label(task: int) -> list:
+    # print(task, type(task))
+    if task not in [1, 2, 3, 4]:
+        raise ValueError("Wrong task number")
+    labels = [
+        ["Task1 - open and close left or right fist", "left fist", "right fist"],
+        ["Task2 - imagine opening and closing left or right fist", "left fist", "right fist"],
+        ["Task3 - open and close both fists or both feet", "booth fist", "booth feet"],
+        ["Task4 - imagine opening and closing both fists or both feet", "booth fist", "booth feet"]
+    ]
+    return labels[task - 1]
+
+
 def run_train(path: str, config: dict = {},
               task: int = 1, subject: int = 0) -> None:
     mne.set_log_level('WARNING')
@@ -42,7 +60,6 @@ def run_train(path: str, config: dict = {},
             task_conf = config["task"][str(i + 1)]
         else:
             task_conf = config["task"][str(task)]
-
         if subject == 0: # Cross subject tests
             print(f"Training across all subjects")
             try:
@@ -62,8 +79,15 @@ def run_train(path: str, config: dict = {},
         scores.append(score)
         print(f"Testing on the X:{X_test.shape}  Y:{y_test.shape}")
         acc = pipe.score(X_test, y_test)
+        if task == 0:
+            labels = select_label(i + 1)
+        else:
+            labels = select_label(task)
+        y_pred = pipe.predict(X_test)
+        print(classification_report(y_test, y_pred, target_names=labels[1:]))
+        show_confusion_matrix(y_test, y_pred, labels)
         accs.append(acc)
-        print(f"Run {i} ---> final cross validation score: {score}   accuracy: {acc}\n")
+        print(f"Run {i} ---> final cross validation score: {score}   accuracy: {acc}\n\n")
 
     print()
     final_score = sum(scores) / len(scores)
@@ -78,6 +102,7 @@ def parse_args():
     parser.add_argument("datafolder")
     parser.add_argument("--task", "-t", type=int, default=0)
     parser.add_argument("--subject", "-s", type=int, default=0)
+    parser.add_argument("--config", "-c", type=str, default="config.json")
     # parser.add_argument("--model", "-m", type=str, default="lda")
     # parser.add_argument("--search_param", "-sm", action="store_true")
     args = parser.parse_args()
@@ -85,13 +110,13 @@ def parse_args():
 
 
 def main():
-    args = parse_args()
-    config = load_config("config.json")
-
-
-    score, accs = run_train(args.datafolder, config,
-            #   args.search_param,
+    try:
+        args = parse_args()
+        config = load_config(args.config)
+        score, accs = run_train(args.datafolder, config,
               args.task, args.subject)
+    except Exception as e:
+        print("Error:", e)
 
     # --------------------------------
     # scores = []

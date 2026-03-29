@@ -7,6 +7,10 @@ from mne.decoding import CSP
 from sklearn.svm import SVC
 from sklearn.discriminant_analysis import LinearDiscriminantAnalysis as LDA
 from xgboost import XGBClassifier
+from pyriemann.estimation import Covariances
+# from pyriemann.classification import MDM
+from pyriemann.tangentspace import TangentSpace
+# from sklearn.decomposition import PCA
 
 
 def pipe_setup(setting: str, n: int) -> Pipeline:
@@ -46,12 +50,21 @@ def pipe_setup(setting: str, n: int) -> Pipeline:
                     hidden_layer_sizes=(32, 16),  
                     activation='relu',           
                     solver='adam',                
-                    alpha=1e-4,                
+                    alpha=1e-2,                
                     batch_size=32,
                     learning_rate_init=0.001,
                     max_iter=500,
-                    random_state=42
+                    random_state=42,
+                    early_stopping=True, 
+                    n_iter_no_change=20, 
                 ))
+            ])
+    elif setting == "riemann":
+        return Pipeline([
+                ('cov', Covariances(estimator='oas')),
+                ('ts', TangentSpace(metric='logeuclid')),
+                ('clf', LogisticRegression(C=0.05, l1_ratio=0.5,
+                                           solver='saga', max_iter=2000)),
             ])
     else:
         raise ValueError("Wrong training pipeline")

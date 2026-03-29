@@ -9,3 +9,7 @@ flake8==6.1.0
 scikit-learn
 
 mne
+
+xgboost
+
+pyriemann
