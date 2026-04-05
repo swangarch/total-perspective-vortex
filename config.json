@@ -10,7 +10,7 @@
             "n_comp": 10,
             "classifier": "MyCSP_LDA",
             "search_param": false,
-            "model": "models_save/models_myscp_lda/ttv_2.pkl"
+            "model": "models_save/models_mycsp_lda/ttv_2.pkl"
         },
         "3": {
             "n_comp": 16,

@@ -41,6 +41,8 @@ def run_predict(path: str, config: dict = {},
 def run_predict_realtime(path: str, config: dict = {},
               task: int = 1) -> None:
     mne.set_log_level('WARNING')
+    print(task)
+
     task_conf = config["task"][str(task)]
     model_file = task_conf["model"]
     pipe = load_model(model_file)
@@ -64,7 +66,7 @@ def run_predict_realtime(path: str, config: dict = {},
 def parse_args():
     parser = argparse.ArgumentParser()
     parser.add_argument("datapath")
-    parser.add_argument("--task", "-t", type=int)
+    parser.add_argument("--task", "-t", type=int, default=1)
     parser.add_argument("--config", "-c", type=str, default="config.json")
     parser.add_argument("--realtime", "-r", action="store_true")
     args = parser.parse_args()

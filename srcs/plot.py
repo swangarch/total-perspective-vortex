@@ -1,7 +1,7 @@
 from sklearn.metrics import confusion_matrix, ConfusionMatrixDisplay
 import matplotlib.pyplot as plt
 import numpy as np
-from sklearn.metrics import f1_score, classification_report
+from sklearn.metrics import f1_score
 
 
 def show_confusion_matrix(y_test, y_pred,

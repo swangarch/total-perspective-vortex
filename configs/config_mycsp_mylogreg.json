@@ -3,22 +3,26 @@
         "1": {
             "n_comp": 8,
             "classifier": "MyCSP_MyLogreg",
-            "search_param": false
+            "search_param": false,
+            "model": "models_save/models_mycsp_mylogreg/ttv_1.pkl"
         },
         "2": {
             "n_comp": 16,
             "classifier": "MyCSP_MyLogreg",
-            "search_param": false
+            "search_param": false,
+            "model": "models_save/models_mycsp_mylogreg/ttv_2.pkl"
         },
         "3": {
             "n_comp": 16,
             "classifier": "MyCSP_MyLogreg",
-            "search_param": false
+            "search_param": false,
+            "model": "models_save/models_mycsp_mylogreg/ttv_3.pkl"
         },
         "4": {
             "n_comp": 22,
             "classifier": "MyCSP_MyLogreg",
-            "search_param": false
+            "search_param": false,
+            "model": "models_save/models_mycsp_mylogreg/ttv_4.pkl"
         }
     }
 }

@@ -36,7 +36,7 @@ def read_edf(file: str, plot: bool = False) -> np.ndarray:
         show_edf(raw, montage, file, "raw edf")
 
     raw.pick("eeg")
-    raw.notch_filter(50)
+    raw.notch_filter(60)
     raw.filter(8, 30)
     raw.resample(160)
     
