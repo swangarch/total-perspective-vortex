@@ -22,6 +22,8 @@ def run_predict(path: str, config: dict = {},
               task: int = 1) -> None:
     mne.set_log_level('WARNING')
     task_conf = config["task"][str(task)]
+    labels = select_label(task)
+    print(labels[0])
     model_file = task_conf["model"]
     pipe = load_model(model_file)
     print(pipe, "\n")
@@ -41,9 +43,10 @@ def run_predict(path: str, config: dict = {},
 def run_predict_realtime(path: str, config: dict = {},
               task: int = 1) -> None:
     mne.set_log_level('WARNING')
-    print(task)
-
+    
+    labels = select_label(task)
     task_conf = config["task"][str(task)]
+    print(labels[0])
     model_file = task_conf["model"]
     pipe = load_model(model_file)
     X_test, y_test = read_data_single(path)
@@ -58,6 +61,9 @@ def run_predict_realtime(path: str, config: dict = {},
         y_pred = pipe.predict(X_test[i: i + 1])
         is_correct = (y_test[i] == y_pred)
         print(f"{datetime.now().strftime('%Y-%m-%d %H:%M:%S')}   Epoch {i}  Ground Truth: {y_test[i]}  Prediction: {y_pred[0]}   Correct prediction: {is_correct}")
+        
+        print(f"---- Ground Truth: {labels[y_test[i] + 1]}")
+        print(f"---- Prediction: {labels[y_pred[0] + 1]}")
         if is_correct:
             correct_count += 1
     print(f"Final accuracy: {float(correct_count) / float(len(X_test))}")
