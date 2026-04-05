@@ -7,7 +7,7 @@ def sigmoid(X):
     return s
 
 
-class my_logreg(BaseEstimator, ClassifierMixin):
+class MyLogreg(BaseEstimator, ClassifierMixin):
     def __init__(self, n_comp=8, learning_rate = 0.001,
                  max_iter = 1000, batch_size = 24,
                  C = 0.1):
@@ -34,4 +34,3 @@ class my_logreg(BaseEstimator, ClassifierMixin):
     def predict(self, X):
         prediction = (sigmoid(X @ self.W_ + self.b_) > 0.5).astype(int).flatten()
         return prediction
-

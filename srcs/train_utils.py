@@ -7,38 +7,47 @@ from mne.decoding import CSP
 from sklearn.svm import SVC
 from sklearn.discriminant_analysis import LinearDiscriminantAnalysis as LDA
 from xgboost import XGBClassifier
-from pyriemann.estimation import Covariances
-# from pyriemann.classification import MDM
-from pyriemann.tangentspace import TangentSpace
-from .logreg import my_logreg
-# from sklearn.decomposition import PCA
+
+from .logreg import MyLogreg
+from .CSP import MyCSP
 
 
 def pipe_setup(setting: str, n: int) -> Pipeline:
-    if setting == "logreg":    
+    if setting == "CSP_Logreg":    
         return Pipeline([
                 ('CSP', CSP(n_components=n, reg='ledoit_wolf', log=True)),
                 ("scaler", StandardScaler()),
                 ("clf", LogisticRegression(max_iter=1000, C=0.1)),
             ])
-    if setting == "my_logreg":    
+    elif setting == "CSP_MyLogreg":    
         return Pipeline([
                 ('CSP', CSP(n_components=n, reg='ledoit_wolf', log=True)),
                 ("scaler", StandardScaler()),
-                ("clf", my_logreg(max_iter=1000, learning_rate=0.01, C=0.1)),
+                ("clf", MyLogreg(max_iter=1000, learning_rate=0.01, C=0.1)),
             ])
-    elif setting == "lda":
+    elif setting == "MyCSP_MyLogreg":    
+        return Pipeline([
+                ('CSP', MyCSP(n_components=n)),
+                ("scaler", StandardScaler()),
+                ("clf", MyLogreg(max_iter=1000, learning_rate=0.01, C=0.1)),
+            ])
+    elif setting == "CSP_LDA":
         return Pipeline([
                 ('CSP', CSP(n_components=n, reg='ledoit_wolf', log=True, norm_trace=True)),
                 ('LDA', LDA(solver='lsqr', shrinkage='auto'))
             ])
-    elif setting == "svm":
+    elif setting == "MyCSP_LDA":
+        return Pipeline([
+                ('CSP', MyCSP(n_components=n)),
+                ('LDA', LDA(solver='lsqr', shrinkage='auto'))
+            ])
+    elif setting == "CSP_SVM":
         return Pipeline([
                 ('CSP', CSP(n_components=n, reg='ledoit_wolf', log=True, norm_trace=True)),
                 ("scaler", StandardScaler()),
                 ('SVM', SVC(kernel='rbf', C=0.1, gamma='scale'))
             ])
-    elif setting == "xgb":
+    elif setting == "CSP_XGBOOST":
         return Pipeline([
                 ('CSP', CSP(n_components=n, reg='ledoit_wolf', log=True, norm_trace=True)),
                 ("scaler", StandardScaler()),
@@ -49,7 +58,7 @@ def pipe_setup(setting: str, n: int) -> Pipeline:
                     eval_metric='logloss'
                 ))
             ])
-    elif setting == "mlp":
+    elif setting == "CSP_MLP":
         return Pipeline([
                 ('CSP', CSP(n_components=n, reg='ledoit_wolf',  log=True)),
                 ("scaler", StandardScaler()),
@@ -65,13 +74,6 @@ def pipe_setup(setting: str, n: int) -> Pipeline:
                     early_stopping=True, 
                     n_iter_no_change=20, 
                 ))
-            ])
-    elif setting == "riemann":
-        return Pipeline([
-                ('cov', Covariances(estimator='oas')),
-                ('ts', TangentSpace(metric='logeuclid')),
-                ('clf', LogisticRegression(C=0.05, l1_ratio=0.5,
-                                           solver='saga', max_iter=2000)),
             ])
     else:
         raise ValueError("Wrong training pipeline")
@@ -95,7 +97,6 @@ def train(X, y, pipe_setting="logreg", n_comp: int = 8, search_param: bool = Tru
             pipe = pipe_setup(p, n_comp)
             print(f"Training with cross validation. classifier: {p}")
             scores = cross_val_score(pipe, X, y, cv=5)
-
             curr_score = scores.mean()
             if curr_score > max_score:
                 max_score = curr_score

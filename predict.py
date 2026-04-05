@@ -72,12 +72,15 @@ def parse_args():
 
 
 def main():
-    args = parse_args()
-    config = load_config(args.config)
-    if args.realtime:
-        run_predict_realtime(args.datapath, config, args.task)
-    else:
-        run_predict(args.datapath, config, args.task)
+    try:
+        args = parse_args()
+        config = load_config(args.config)
+        if args.realtime:
+            run_predict_realtime(args.datapath, config, args.task)
+        else:
+            run_predict(args.datapath, config, args.task)
+    except Exception as e:
+        print(f"Error: {e}")
 
 
 if __name__ == "__main__":

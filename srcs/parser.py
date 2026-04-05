@@ -1,14 +1,15 @@
 from mne.io import read_raw_edf
-import matplotlib.pyplot as plt
+# import matplotlib.pyplot as plt
 import mne
 import numpy as np
 import os
 import random as rd
 from .plot import show_single_epoch, show_edf
+# from mne.preprocessing import ICA
+# from mne.time_frequency import psd_welch
 
 
-SEED = 2402 # 0.6599
-# SEED = 24921 # 0.658
+SEED = 2402
 
 
 def get_event(raw) -> dict:
@@ -31,21 +32,19 @@ def get_event(raw) -> dict:
 
 def read_edf(file: str, plot: bool = False) -> np.ndarray:
     raw = read_raw_edf(file, preload=True, verbose=False)
+    mne.datasets.eegbci.standardize(raw)
+    montage = mne.channels.make_standard_montage('standard_1005')
     if plot:
-        print(f"Visualize raw edf file: {file}")
-        show_edf(raw)
-    raw.resample(160)
-    raw.filter(8, 30)
+        show_edf(raw, montage, file, "raw edf")
+
     raw.pick("eeg")
-    # motor_channels = [
-    #     'C3..', 'C1..', 'Cz..', 'C2..', 'C4..',  # central
-    #     'Fc3.', 'Fc1.', 'Fcz.', 'Fc2.', 'Fc4.',  # front
-    #     'Cp3.', 'Cp1.', 'Cpz.', 'Cp2.', 'Cp4.'   # back
-    # ]
-    # raw.pick(motor_channels)
+    raw.notch_filter(50)
+    raw.filter(8, 30)
+    raw.resample(160)
+    
     if plot:
-        print(f"Visualize filtered raw edf file: {file}")
-        show_edf(raw)
+        show_edf(raw, montage, file, "filtered raw edf")
+
     events, event_id = get_event(raw)
     epochs = mne.Epochs(
         raw,
@@ -57,17 +56,22 @@ def read_edf(file: str, plot: bool = False) -> np.ndarray:
         preload=True,
         reject=dict(eeg=420e-6)
     )
-    epochs.drop_bad()
+    # epochs.drop_bad()
     if len(epochs) == 0:                                 
         return np.array([]), np.array([])  
     epochs.crop(tmin=0, tmax=4)
     np_data = epochs.get_data()
+
+    #---------------------------
+
+    #---------------------------
+
     raw_labels = epochs.events[:, -1]
     label_map = {v: i for i, v in enumerate(event_id.values())}
     labels = np.array([label_map[l] for l in raw_labels]) 
-    # map label from 1 2 3 to 0 or 0, 1
     if plot:
         show_single_epoch(np_data)
+    # return np_data, labels
     return np_data, labels
 
 

@@ -1,5 +1,4 @@
 import mne
-import sys
 from srcs import (load_config, train, 
                   preprocess_cross_subject_dataset, 
                   preprocess_single_subject_dataset,
@@ -8,10 +7,7 @@ from srcs import (load_config, train,
 import joblib
 import os
 import argparse
-import numpy as np
-import random as rd
-import matplotlib.pyplot as plt
-from sklearn.metrics import f1_score, classification_report
+from sklearn.metrics import classification_report
 
 import warnings
 warnings.filterwarnings("ignore")
@@ -39,8 +35,9 @@ def run_train(path: str, config: dict = {},
                 subject_path = os.path.join(path, "S" + str(subject).zfill(3))
                 print(f"Training on single subject {subject}")
                 X, y, X_test, y_test = preprocess_single_subject_dataset(subject_path, run)
-        except:
-            return None, None
+        except Exception as e:
+            print(f"Error: {e}")
+            return
         pipe, score = train(X, y, task_conf["classifier"], n_comp=task_conf["n_comp"],
                             search_param=task_conf["search_param"])
         joblib.dump(pipe, f"models/ttv_{task_index}.pkl")
@@ -59,7 +56,6 @@ def run_train(path: str, config: dict = {},
     final_acc = sum(accs) / len(accs)
     print("The final score of cross validation is: ", final_score)
     print(f"The final test accuracy is: ", final_acc)
-    return final_score, final_acc
 
 
 def parse_args():
@@ -68,8 +64,6 @@ def parse_args():
     parser.add_argument("--task", "-t", type=int, default=0)
     parser.add_argument("--subject", "-s", type=int, default=0)
     parser.add_argument("--config", "-c", type=str, default="config.json")
-    # parser.add_argument("--model", "-m", type=str, default="lda")
-    # parser.add_argument("--search_param", "-sm", action="store_true")
     args = parser.parse_args()
     return args
 
@@ -78,22 +72,10 @@ def main():
     try:
         args = parse_args()
         config = load_config(args.config)
-        score, accs = run_train(args.datafolder, config,
+        run_train(args.datafolder, config,
               args.task, args.subject)
     except Exception as e:
         print("Error:", e)
-
-    # --------------------------------
-    # scores = []
-    # accuracies = []
-    # for i in range(1, 110, 1):
-    #     score, accs = run_train(args.datafolder, args.model, 
-    #             args.search_param,
-    #             args.task, i)
-    #     if score and accs:
-    #         scores.append(score)
-    #         accuracies.append(accs)
-    # print(f"accuracy {sum(accuracies) / 109.0}    score {sum(scores) / 109.0}")
     
 
 if __name__ == "__main__":

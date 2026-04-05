@@ -4,7 +4,8 @@ import numpy as np
 from sklearn.metrics import f1_score, classification_report
 
 
-def show_confusion_matrix(y_test, y_pred, labels=["Prediction","left hand", "right hand"]):
+def show_confusion_matrix(y_test, y_pred,
+                          labels=["Prediction","left hand", "right hand"]):
     cm = confusion_matrix(y_test, y_pred)
     disp = ConfusionMatrixDisplay(confusion_matrix=cm,
                                   display_labels=labels[1:],
@@ -15,6 +16,7 @@ def show_confusion_matrix(y_test, y_pred, labels=["Prediction","left hand", "rig
     
     disp.plot(colorbar=False)
     disp.ax_.set_title(f"{labels[0]} -> f1: {f1:.3f} | acc: {acc:.3f}")
+    plt.pause(5)
     plt.show()
     plt.close()
 
@@ -32,8 +34,15 @@ def show_single_epoch(np_data: np.array):
     plt.show()
 
 
-def show_edf(raw) -> None:
+def show_edf(raw, montage, file: str, title: str) -> None:
+    print(f"Visualize {title} file: {file}")
     raw.plot(
         scalings={"eeg": 120e-6},
     )
     plt.show()
+
+    raw.set_montage(montage)
+    raw.compute_psd().plot(spatial_colors=True)
+    plt.show()
+    
+    raw.compute_psd().plot_topomap()
