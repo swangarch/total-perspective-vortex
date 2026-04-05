@@ -1,12 +1,10 @@
 from mne.io import read_raw_edf
-# import matplotlib.pyplot as plt
+# impo
 import mne
 import numpy as np
 import os
 import random as rd
 from .plot import show_single_epoch, show_edf
-# from mne.preprocessing import ICA
-# from mne.time_frequency import psd_welch
 
 
 SEED = 2402
@@ -56,22 +54,17 @@ def read_edf(file: str, plot: bool = False) -> np.ndarray:
         preload=True,
         reject=dict(eeg=420e-6)
     )
-    # epochs.drop_bad()
+    epochs.drop_bad()
     if len(epochs) == 0:                                 
         return np.array([]), np.array([])  
     epochs.crop(tmin=0, tmax=4)
     np_data = epochs.get_data()
-
-    #---------------------------
-
-    #---------------------------
 
     raw_labels = epochs.events[:, -1]
     label_map = {v: i for i, v in enumerate(event_id.values())}
     labels = np.array([label_map[l] for l in raw_labels]) 
     if plot:
         show_single_epoch(np_data)
-    # return np_data, labels
     return np_data, labels
 
 
@@ -159,28 +152,6 @@ def read_data_single(filepath: str) -> tuple:  ## for test
     print(f"T1 count: {np.sum(y==0)}   T2 count: {np.sum(y==1)}\n")
     print(f"Edf file {filepath} loaded.\n")
     return X, y
-
-
-# def split_dataset_subject(Xarr: np.array, yarr: np.array, rate=0.8):
-#     rd.seed(SEED)
-#     indices = np.random.permutation(len(Xarr))
-#     split = int(rate * len(Xarr))
-#     train_idx = indices[:split]
-#     test_idx = indices[split:]
-
-#     X = Xarr[train_idx]
-#     X_test = Xarr[test_idx]
-
-#     y = yarr[train_idx]
-#     y_test = yarr[test_idx]
-
-#     print("Dataset has been splitted to train set and test set.")
-#     return X, y, X_test, y_test
-
-
-# def preprocess_single_subject_dataset(path, run) -> tuple:
-#     X, y = read_data_subject(path, run)
-#     return split_dataset_subject(X, y)
 
 
 def read_data_subject(path: str, runs: list, test_idx: int = 2) -> tuple:
