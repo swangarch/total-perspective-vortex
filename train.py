@@ -21,7 +21,7 @@ def run_train(path: str, config: dict = {},
     accs = []
     os.makedirs("models", exist_ok=True)
     for i, run in enumerate(runs):
-        print(f"Loading edf file loaded for current runs {i}:  {runs[i]}")
+        print(f"Edf file loaded for current runs {i}:  {runs[i]}")
         if task == 0:
             task_index = i + 1
         else:
@@ -30,11 +30,11 @@ def run_train(path: str, config: dict = {},
         try:
             if subject == 0: # Cross subject tests
                 print(f"Training across all subjects")
-                X, y, X_test, y_test = preprocess_cross_subject_dataset(path, run)
+                X, y, X_test, y_test = preprocess_cross_subject_dataset(path, run, task_index)
             else:
                 subject_path = os.path.join(path, "S" + str(subject).zfill(3))
                 print(f"Training on single subject {subject}")
-                X, y, X_test, y_test = preprocess_single_subject_dataset(subject_path, run)
+                X, y, X_test, y_test = preprocess_single_subject_dataset(subject_path, run, task_index)
         except Exception as e:
             print(f"Error: {e}")
             return

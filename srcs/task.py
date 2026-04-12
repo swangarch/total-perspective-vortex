@@ -4,11 +4,13 @@ def select_task(task: int) -> list:
         [ "R04", "R08", "R12"],
         [ "R05", "R09", "R13"],
         [ "R06", "R10", "R14"],
+        [ "R03", "R04", "R07", "R08", "R11", "R12"],
+        [ "R03", "R04", "R07", "R08", "R11", "R12"],
     ]
     if task == 0:
         runs = runs
         print("Train model on all tasks")
-    elif task in [1, 2, 3, 4]:
+    elif task in [1, 2, 3, 4, 5, 6]:
         runs = [runs[task - 1]]
         print(f"Train model on task {task}")
     else:
@@ -17,12 +19,14 @@ def select_task(task: int) -> list:
 
 
 def select_label(task: int) -> list:
-    if task not in [1, 2, 3, 4]:
+    if task not in [1, 2, 3, 4, 5, 6]:
         raise ValueError("Wrong task number")
     labels = [
         ["Task1 - open and close left or right fist", "left fist", "right fist"],
         ["Task2 - imagine opening and closing left or right fist", "left fist", "right fist"],
         ["Task3 - open and close both fists or both feet", "booth fist", "booth feet"],
-        ["Task4 - imagine opening and closing both fists or both feet", "booth fist", "booth feet"]
+        ["Task4 - imagine opening and closing both fists or both feet", "booth fist", "booth feet"],
+        ["Task5 - open or imagine opening left fists", "open", "imagine opening"],
+        ["Task6 - open or imagine opening right fists", "open", "imagine opening"]
     ]
     return labels[task - 1]

@@ -23,6 +23,18 @@
             "classifier": "CSP_LDA",
             "search_param": false,
             "model": "models_save/models_csp_lda/ttv_4.pkl"
+        },
+        "5": {
+            "n_comp": 10,
+            "classifier": "CSP_LDA",
+            "search_param": false,
+            "model": "models_save/models_csp_lda/ttv_5.pkl"
+        },
+        "6": {
+            "n_comp": 12,
+            "classifier": "CSP_LDA",
+            "search_param": false,
+            "model": "models_save/models_csp_lda/ttv_6.pkl"
         }
     }
 }

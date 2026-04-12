@@ -28,7 +28,17 @@ def get_event(raw) -> dict:
     return events, event_id
 
 
-def read_edf(file: str, plot: bool = False) -> np.ndarray:
+def get_run_id(file: str) -> int:
+    return int(file[-6:-4])
+
+
+def read_edf(file: str, plot: bool = False, task_index: int = 0) -> np.ndarray:
+
+    do = [3, 7, 11]
+    imagine = [4, 8, 12]
+
+    run_id = get_run_id(file)
+
     raw = read_raw_edf(file, preload=True, verbose=False)
     mne.datasets.eegbci.standardize(raw)
     montage = mne.channels.make_standard_montage('standard_1005')
@@ -65,10 +75,25 @@ def read_edf(file: str, plot: bool = False) -> np.ndarray:
     labels = np.array([label_map[l] for l in raw_labels]) 
     if plot:
         show_single_epoch(np_data)
+
+    if task_index == 5:
+        if run_id in do:
+            np_data = np_data[labels == 0]
+            labels = labels[labels == 0]
+        elif run_id in imagine:
+            np_data = np_data[labels == 0]
+            labels = labels[labels == 0] + 1
+    elif task_index == 6:
+        if run_id in do:
+            np_data = np_data[labels == 1]
+            labels = labels[labels == 1] - 1
+        elif run_id in imagine:
+            np_data = np_data[labels == 1]
+            labels = labels[labels == 1]
     return np_data, labels
 
 
-def read_datafolder(path: str, runs: list) -> tuple:
+def read_datafolder(path: str, runs: list, task_index: int) -> tuple:
     folders = sorted(os.listdir(path))
     subjects = []
     count = 0
@@ -81,7 +106,7 @@ def read_datafolder(path: str, runs: list) -> tuple:
             if not file[-7:-4] in runs: 
                 continue
             filepath = os.path.join(path, folder, file)
-            res = read_edf(filepath)
+            res = read_edf(filepath, plot=False, task_index=task_index)
             sub_runs.append(res)
             count += 1
         subjects.append(sub_runs)
@@ -125,20 +150,20 @@ def split_dataset(subjects: list, rate=0.8):
     return X, y, X_test, y_test
 
 
-def preprocess_cross_subject_dataset(path, run) -> tuple:
-    subjects = read_datafolder(path, run)
+def preprocess_cross_subject_dataset(path, run, task_index) -> tuple:
+    subjects = read_datafolder(path, run, task_index)
     return split_dataset(subjects)
 
 
 ## ------------------for single subject----------------------
 
 
-def read_data_single(filepath: str) -> tuple:  ## for test
+def read_data_single(filepath: str, task_index: int) -> tuple:  ## for test
     Xarr = []
     yarr = []
     if not filepath.endswith(".edf"): 
         return None
-    res = read_edf(filepath)
+    res = read_edf(filepath, plot=False, task_index=task_index)
     for i in range(len(res[0])):
         if res[0].shape[-1] == 641:
             Xarr.append(res[0][i])
@@ -166,7 +191,7 @@ def read_data_subject(path: str, runs: list, test_idx: int = 2) -> tuple:
             continue
         filepath = os.path.join(path, file)
         print(filepath)
-        res = read_edf(filepath)
+        res = read_edf(filepath, test_idx)
         read_res.append(res)
         count += 1
         
@@ -200,5 +225,5 @@ def read_data_subject(path: str, runs: list, test_idx: int = 2) -> tuple:
     return X_train, y_train, X_test, y_test
 
 
-def preprocess_single_subject_dataset(path, run) -> tuple:
-    return read_data_subject(path, run)
+def preprocess_single_subject_dataset(path: str, run: list, test_idx: int = 2) -> tuple:
+    return read_data_subject(path, run, test_idx)
