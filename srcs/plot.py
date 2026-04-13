@@ -5,7 +5,8 @@ from sklearn.metrics import f1_score
 
 
 def show_confusion_matrix(y_test, y_pred,
-                          labels=["Prediction","left hand", "right hand"]):
+                          labels=["Prediction","left hand", "right hand"],
+                          save_path: str = "results/confusion_matrix.png"):
     cm = confusion_matrix(y_test, y_pred)
     disp = ConfusionMatrixDisplay(confusion_matrix=cm,
                                   display_labels=labels[1:],
@@ -16,8 +17,7 @@ def show_confusion_matrix(y_test, y_pred,
     
     disp.plot(colorbar=False)
     disp.ax_.set_title(f"{labels[0]} -> f1: {f1:.3f} | acc: {acc:.3f}")
-    plt.pause(5)
-    plt.show()
+    plt.savefig(save_path)
     plt.close()
 
 

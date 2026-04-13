@@ -4,10 +4,8 @@ pandas==2.0.3
 
 matplotlib==3.7.2
 
-flake8==6.1.0
+scikit-learn
 
-scikit-learn==1.8.0
+mne
 
-mne==1.10.2
-
-xgboost==3.2.0
+xgboost

@@ -1,9 +1,6 @@
 from .parser import (
-                        # read_datafolder, 
                         read_edf, 
-                        # read_data_subject,
                         read_data_single,
-                        # split_dataset_subject,
                         preprocess_cross_subject_dataset,
                         preprocess_single_subject_dataset
                      )

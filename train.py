@@ -20,6 +20,7 @@ def run_train(path: str, config: dict = {},
     scores = []
     accs = []
     os.makedirs("models", exist_ok=True)
+    os.makedirs("results", exist_ok=True)
     for i, run in enumerate(runs):
         print(f"Edf file loaded for current runs {i}:  {runs[i]}")
         if task == 0:
@@ -47,9 +48,9 @@ def run_train(path: str, config: dict = {},
         labels = select_label(task_index)
         y_pred = pipe.predict(X_test)
         print(classification_report(y_test, y_pred, target_names=labels[1:]))
-        show_confusion_matrix(y_test, y_pred, labels)
+        show_confusion_matrix(y_test, y_pred, labels, rf"results/Task{task_index}.png")
         accs.append(acc)
-        print(f"Run {i} ---> final cross validation score: {score}   accuracy: {acc}\n\n")
+        print(f"Task {i + 1} ---> final cross validation score: {score}   accuracy: {acc}\n\n")
 
     print()
     final_score = sum(scores) / len(scores)

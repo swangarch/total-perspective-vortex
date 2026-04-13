@@ -32,12 +32,29 @@ def get_run_id(file: str) -> int:
     return int(file[-6:-4])
 
 
-def read_edf(file: str, plot: bool = False, task_index: int = 0) -> np.ndarray:
-
+def handle_do_imagine(np_data: np.array, labels: np.array, 
+                      file: str, task_index: int) -> tuple:
     do = [3, 7, 11]
     imagine = [4, 8, 12]
-
     run_id = get_run_id(file)
+    if task_index == 5:
+        if run_id in do:
+            np_data = np_data[labels == 0]
+            labels = labels[labels == 0]
+        elif run_id in imagine:
+            np_data = np_data[labels == 0]
+            labels = labels[labels == 0] + 1
+    elif task_index == 6:
+        if run_id in do:
+            np_data = np_data[labels == 1]
+            labels = labels[labels == 1] - 1
+        elif run_id in imagine:
+            np_data = np_data[labels == 1]
+            labels = labels[labels == 1]
+    return np_data, labels
+
+
+def read_edf(file: str, plot: bool = False, task_index: int = 0) -> np.ndarray:
 
     raw = read_raw_edf(file, preload=True, verbose=False)
     mne.datasets.eegbci.standardize(raw)
@@ -75,22 +92,9 @@ def read_edf(file: str, plot: bool = False, task_index: int = 0) -> np.ndarray:
     labels = np.array([label_map[l] for l in raw_labels]) 
     if plot:
         show_single_epoch(np_data)
+    
+    return handle_do_imagine(np_data, labels, file, task_index)
 
-    if task_index == 5:
-        if run_id in do:
-            np_data = np_data[labels == 0]
-            labels = labels[labels == 0]
-        elif run_id in imagine:
-            np_data = np_data[labels == 0]
-            labels = labels[labels == 0] + 1
-    elif task_index == 6:
-        if run_id in do:
-            np_data = np_data[labels == 1]
-            labels = labels[labels == 1] - 1
-        elif run_id in imagine:
-            np_data = np_data[labels == 1]
-            labels = labels[labels == 1]
-    return np_data, labels
 
 
 def read_datafolder(path: str, runs: list, task_index: int) -> tuple:
@@ -185,13 +189,13 @@ def read_data_subject(path: str, runs: list, test_idx: int = 2) -> tuple:
 
     read_res = []
     for file in files: # each subject
-        if not file.endswith(".edf"): 
+        if not file.endswith(".edf"):
             continue
         if not file[-7:-4] in runs:
             continue
         filepath = os.path.join(path, file)
         print(filepath)
-        res = read_edf(filepath, test_idx)
+        res = read_edf(filepath, plot=False, task_index=test_idx)
         read_res.append(res)
         count += 1
         
