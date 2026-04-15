@@ -1,9 +1,5 @@
-from mne.io import concatenate_raws, read_raw_edf
-import matplotlib.pyplot as plt
 import mne
 import sys
-import numpy as np
-
 from srcs import read_edf
 
 

@@ -1,82 +1,15 @@
-from sklearn.neural_network import MLPClassifier
-from sklearn.pipeline import Pipeline
-from sklearn.linear_model import LogisticRegression
-from sklearn.preprocessing import StandardScaler
 from sklearn.model_selection import cross_val_score
-from mne.decoding import CSP
-from sklearn.svm import SVC
-from sklearn.discriminant_analysis import LinearDiscriminantAnalysis as LDA
-from xgboost import XGBClassifier
-
-from .logreg import MyLogreg
-from .CSP import MyCSP
-
-
-def pipe_setup(setting: str, n: int) -> Pipeline:
-    if setting == "CSP_Logreg":    
-        return Pipeline([
-                ('CSP', CSP(n_components=n, reg='ledoit_wolf', log=True)),
-                ("scaler", StandardScaler()),
-                ("clf", LogisticRegression(max_iter=1000, C=0.1)),
-            ])
-    elif setting == "CSP_MyLogreg":    
-        return Pipeline([
-                ('CSP', CSP(n_components=n, reg='ledoit_wolf', log=True)),
-                ("scaler", StandardScaler()),
-                ("clf", MyLogreg(max_iter=1000, learning_rate=0.01, C=0.1)),
-            ])
-    elif setting == "MyCSP_MyLogreg":    
-        return Pipeline([
-                ('CSP', MyCSP(n_components=n)),
-                ("scaler", StandardScaler()),
-                ("clf", MyLogreg(max_iter=1000, learning_rate=0.01, C=0.1)),
-            ])
-    elif setting == "CSP_LDA":
-        return Pipeline([
-                ('CSP', CSP(n_components=n, reg='ledoit_wolf', log=True, norm_trace=True)),
-                ('LDA', LDA(solver='lsqr', shrinkage='auto'))
-            ])
-    elif setting == "MyCSP_LDA":
-        return Pipeline([
-                ('CSP', MyCSP(n_components=n)),
-                ('LDA', LDA(solver='lsqr', shrinkage='auto'))
-            ])
-    elif setting == "CSP_SVM":
-        return Pipeline([
-                ('CSP', CSP(n_components=n, reg='ledoit_wolf', log=True, norm_trace=True)),
-                ("scaler", StandardScaler()),
-                ('SVM', SVC(kernel='rbf', C=0.1, gamma='scale'))
-            ])
-    elif setting == "CSP_XGBOOST":
-        return Pipeline([
-                ('CSP', CSP(n_components=n, reg='ledoit_wolf', log=True, norm_trace=True)),
-                ("scaler", StandardScaler()),
-                ('XGBOOST', XGBClassifier(n_estimators=100,
-                    max_depth=3,
-                    learning_rate=0.1,
-                    use_label_encoder=False,
-                    eval_metric='logloss'
-                ))
-            ])
-    elif setting == "CSP_MLP":
-        return Pipeline([
-                ('CSP', CSP(n_components=n, reg='ledoit_wolf',  log=True)),
-                ("scaler", StandardScaler()),
-                ("mlp", MLPClassifier(
-                    hidden_layer_sizes=(32, 16),  
-                    activation='relu',           
-                    solver='adam',                
-                    alpha=1e-2,                
-                    batch_size=32,
-                    learning_rate_init=0.001,
-                    max_iter=500,
-                    random_state=42,
-                    early_stopping=True, 
-                    n_iter_no_change=20, 
-                ))
-            ])
-    else:
-        raise ValueError("Wrong training pipeline")
+from .pipeline import pipe_setup
+import mne
+from .data import (
+                  preprocess_cross_subject_dataset, 
+                  preprocess_single_subject_dataset,
+                  show_confusion_matrix
+                )
+from .task import select_label, select_task
+import joblib
+import os
+from sklearn.metrics import classification_report
 
 
 def train(X, y, pipe_setting="logreg", n_comp: int = 8, search_param: bool = True):
@@ -107,3 +40,49 @@ def train(X, y, pipe_setting="logreg", n_comp: int = 8, search_param: bool = Tru
     print(f"Training with no cross validation. classifier {pipe_setting}  n_comps: {max_ncomp}")
     max_pipe.fit(X, y)
     return max_pipe, max_score
+
+
+def run_train(path: str, config: dict = {},
+              task: int = 1, subject: int = 0) -> None:
+    mne.set_log_level('WARNING')
+    runs = select_task(task)
+    scores = []
+    accs = []
+    os.makedirs("models", exist_ok=True)
+    os.makedirs("results", exist_ok=True)
+    for i, run in enumerate(runs):
+        print(f"Edf file loaded for current runs {i}:  {runs[i]}")
+        if task == 0:
+            task_index = i + 1
+        else:
+            task_index = task
+        task_conf = config["task"][str(task_index)]
+        try:
+            if subject == 0: # Cross subject tests
+                print(f"Training across all subjects")
+                X, y, X_test, y_test = preprocess_cross_subject_dataset(path, run, task_index)
+            else:
+                subject_path = os.path.join(path, "S" + str(subject).zfill(3))
+                print(f"Training on single subject {subject}")
+                X, y, X_test, y_test = preprocess_single_subject_dataset(subject_path, run, task_index)
+        except Exception as e:
+            print(f"Error: {e}")
+            return
+        pipe, score = train(X, y, task_conf["classifier"], n_comp=task_conf["n_comp"],
+                            search_param=task_conf["search_param"])
+        joblib.dump(pipe, f"models/ttv_{task_index}.pkl")
+        scores.append(score)
+        print(f"Testing on the X:{X_test.shape}  Y:{y_test.shape}")
+        acc = pipe.score(X_test, y_test)
+        labels = select_label(task_index)
+        y_pred = pipe.predict(X_test)
+        print(classification_report(y_test, y_pred, target_names=labels[1:]))
+        show_confusion_matrix(y_test, y_pred, labels, rf"results/Task{task_index}.png")
+        accs.append(acc)
+        print(f"Task {i + 1} ---> final cross validation score: {score}   accuracy: {acc}\n\n")
+
+    print()
+    final_score = sum(scores) / len(scores)
+    final_acc = sum(accs) / len(accs)
+    print("The final score of cross validation is: ", final_score)
+    print(f"The final test accuracy is: ", final_acc)
