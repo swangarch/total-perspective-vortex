@@ -1,10 +1,11 @@
 import joblib
 from sklearn.pipeline import Pipeline
 import argparse
-from srcs import (load_config, 
-                  read_data_single, 
-                  show_confusion_matrix,
-                  select_label)
+from srcs import (
+                    load_config, 
+                    read_data_single, 
+                    show_confusion_matrix
+                )
 from sklearn.metrics import classification_report
 import mne
 import warnings
@@ -21,19 +22,18 @@ def load_model(path: str) -> Pipeline:
 def run_predict(path: str, config: dict = {},
               task: int = 1) -> None:
     mne.set_log_level('WARNING')
-    task_conf = config["task"][str(task)]
-    labels = select_label(task)
-    print(labels[0])
-    model_file = task_conf["model"]
+    conf = config["task"][str(task)]
+    labels = conf["labels"]
+    print(conf["title"])
+    model_file = conf["model"]
     pipe = load_model(model_file)
     print(pipe, "\n")
-    X_test, y_test = read_data_single(path)
+    X_test, y_test = read_data_single(path, task)
     print(f"Realtime stream data testing on the X:{X_test.shape}  Y:{y_test.shape}")
     acc = pipe.score(X_test, y_test)
-    labels = select_label(task)
     y_pred = pipe.predict(X_test)
-    print(classification_report(y_test, y_pred, target_names=labels[1:]))
-    show_confusion_matrix(y_test, y_pred, labels)
+    print(classification_report(y_test, y_pred, target_names=labels))
+    show_confusion_matrix(y_test, y_pred, conf["title"], conf["labels"], rf"results/Task{task}.png")
     print(f"Run {path} ---> final accuracy: {acc}\n\n")
     print(f"Prediction ---> {y_pred}")
     print(f"Ground Truth: ---> {y_test}")
@@ -44,12 +44,12 @@ def run_predict_realtime(path: str, config: dict = {},
               task: int = 1) -> None:
     mne.set_log_level('WARNING')
     
-    labels = select_label(task)
-    task_conf = config["task"][str(task)]
-    print(labels[0])
-    model_file = task_conf["model"]
+    conf = config["task"][str(task)]
+    labels = conf["labels"]
+    print(conf["title"])
+    model_file = conf["model"]
     pipe = load_model(model_file)
-    X_test, y_test = read_data_single(path)
+    X_test, y_test = read_data_single(path, task)
     print(f"Testing on the X:{X_test.shape}  Y:{y_test.shape}")
     correct_count = 0
     time.sleep(4)
@@ -62,8 +62,8 @@ def run_predict_realtime(path: str, config: dict = {},
         is_correct = (y_test[i] == y_pred)
         print(f"{datetime.now().strftime('%Y-%m-%d %H:%M:%S')}   Epoch {i}  Ground Truth: {y_test[i]}  Prediction: {y_pred[0]}   Correct prediction: {is_correct}")
         
-        print(f"---- Ground Truth: {labels[y_test[i] + 1]}")
-        print(f"---- Prediction: {labels[y_pred[0] + 1]}")
+        print(f"---- Ground Truth: {labels[y_test[i]]}")
+        print(f"---- Prediction: {labels[y_pred[0]]}")
         if is_correct:
             correct_count += 1
     print(f"Final accuracy: {float(correct_count) / float(len(X_test))}")

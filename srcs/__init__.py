@@ -7,7 +7,6 @@ from .data import (
 from .train_utils import train, run_train
 from .config import load_config
 from .data.plot import show_confusion_matrix
-from .task import select_task, select_label
 
 
 __all__ = [
@@ -18,6 +17,4 @@ __all__ = [
             "preprocess_single_subject_dataset",
             "train", "run_train",
             "show_confusion_matrix",
-            "select_task",
-            "select_label"
         ]

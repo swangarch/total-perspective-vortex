@@ -53,5 +53,3 @@ class MyCSP(BaseEstimator, TransformerMixin):
             features[i, :] = np.log(np.var(X_filtered, axis=1)) 
 
         return features
-    
-

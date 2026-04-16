@@ -5,7 +5,7 @@
             "classifier": "CSP_LDA",
             "search_param": false,
             "model": "models_save/models_csp_lda/ttv_1.pkl",
-            "runs": [ "R03", "R07", "R11"],
+            "runs": [ "R03", "R07", "R11" ],
             "title": "Task1 - open and close left or right fist",
             "labels": ["left fist", "right fist"]
         },
@@ -14,7 +14,7 @@
             "classifier": "CSP_LDA",
             "search_param": false,
             "model": "models_save/models_csp_lda/ttv_2.pkl",
-            "runs": [ "R04", "R08", "R12"],
+            "runs": [ "R04", "R08", "R12" ],
             "title": "Task2 - imagine opening and closing left or right fist",
             "labels": ["left fist", "right fist"]
         },
@@ -23,7 +23,7 @@
             "classifier": "CSP_LDA",
             "search_param": false,
             "model": "models_save/models_csp_lda/ttv_3.pkl",
-            "runs": [ "R05", "R09", "R13"],
+            "runs": [ "R05", "R09", "R13" ],
             "title": "Task3 - open and close both fists or both feet",
             "labels": ["booth fist", "booth feet"]
         },
@@ -32,7 +32,7 @@
             "classifier": "CSP_LDA",
             "search_param": false,
             "model": "models_save/models_csp_lda/ttv_4.pkl",
-            "runs": [ "R06", "R10", "R14"],
+            "runs": [ "R06", "R10", "R14" ],
             "title": "Task4 - imagine opening and closing both fists or both feet",
             "labels": ["booth fist", "booth feet"]
         },
@@ -41,7 +41,7 @@
             "classifier": "CSP_LDA",
             "search_param": false,
             "model": "models_save/models_csp_lda/ttv_5.pkl",
-            "runs": [ "R03", "R04", "R07", "R08", "R11", "R12"],
+            "runs": [ "R03", "R04", "R07", "R08", "R11", "R12" ],
             "title": "Task5 - open or imagine opening left fists",
             "labels": ["open", "imagine opening"]
         },
@@ -50,7 +50,7 @@
             "classifier": "CSP_LDA",
             "search_param": false,
             "model": "models_save/models_csp_lda/ttv_6.pkl",
-            "runs": [ "R03", "R04", "R07", "R08", "R11", "R12"],
+            "runs": [ "R03", "R04", "R07", "R08", "R11", "R12" ],
             "title": "Task6 - open or imagine opening right fists",
             "labels": ["open", "imagine opening"]
         }
