@@ -27,7 +27,7 @@ def read_data_single(filepath: str, task_index: int) -> tuple:  ## for test
     return X, y
 
 
-def read_data_subject(path: str, runs: list, test_idx: int = 2) -> tuple:
+def read_data_subject(path: str, runs: list, task_index: int = 2) -> tuple:
     files = sorted(os.listdir(path))
     count = 0
 
@@ -39,7 +39,7 @@ def read_data_subject(path: str, runs: list, test_idx: int = 2) -> tuple:
             continue
         filepath = os.path.join(path, file)
         print(filepath)
-        res = read_edf(filepath, plot=False, task_index=test_idx)
+        res = read_edf(filepath, plot=False, task_index=task_index)
         read_res.append(res)
         count += 1
         
@@ -53,7 +53,7 @@ def read_data_subject(path: str, runs: list, test_idx: int = 2) -> tuple:
     for i, res in enumerate(read_res):
         for j, epoch in enumerate(res[0]):
             if epoch.shape[-1] == 641:
-                if i != test_idx:
+                if (task_index in [1, 2, 3, 4] and i != 2 ) or (task_index in [5, 6] and i not in [4, 5]):
                     X_train_arr.append(epoch)
                     y_train_arr.append(res[1][j])
                 else:
@@ -64,11 +64,11 @@ def read_data_subject(path: str, runs: list, test_idx: int = 2) -> tuple:
 
     X_train = np.stack(X_train_arr, axis=0)
     y_train = np.array(y_train_arr)
-    print("X shape", X_train.shape, "  ", "y shape", y_train.shape)
+    print("Train data X shape", X_train.shape, "  ", "y shape", y_train.shape)
 
     X_test = np.stack(X_test_arr, axis=0)
     y_test = np.array(y_test_arr)
-    print("X shape", X_test.shape, "  ", "y shape", y_test.shape)
+    print("Test data X shape", X_test.shape, "  ", "y shape", y_test.shape)
 
     return X_train, y_train, X_test, y_test
 

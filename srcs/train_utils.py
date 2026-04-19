@@ -66,13 +66,14 @@ def run_train(path: str, config: dict = {},
             return
         pipe, score = train(X, y, conf["classifier"], n_comp=conf["n_comp"],
                             search_param=conf["search_param"])
+        os.makedirs(os.path.dirname(conf["model"]), exist_ok=True)
         joblib.dump(pipe, conf["model"])
         scores.append(score)
         print(f"Testing on the X:{X_test.shape}  Y:{y_test.shape}")
         acc = pipe.score(X_test, y_test)
         y_pred = pipe.predict(X_test)
         print(classification_report(y_test, y_pred, target_names=conf["labels"]))
-        show_confusion_matrix(y_test, y_pred, conf["title"], conf["labels"], rf"results/Task{task_id}.png")
+        show_confusion_matrix(y_test, y_pred, conf["title"], conf["labels"], rf"results/test_run/Task{task_id}.png")
         accs.append(acc)
         print(f"Task {task_id} ---> final cross validation score: {score}   accuracy: {acc}\n\n")
 

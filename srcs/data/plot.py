@@ -2,11 +2,13 @@ from sklearn.metrics import confusion_matrix, ConfusionMatrixDisplay
 import matplotlib.pyplot as plt
 import numpy as np
 from sklearn.metrics import f1_score
+import os
 
 
 def show_confusion_matrix(y_test: np.array, y_pred: np.array, title: str,
                           labels: list = ["left hand", "right hand"],
                           save_path: str = "results/confusion_matrix.png"):
+    os.makedirs(os.path.dirname(save_path), exist_ok=True)
     cm = confusion_matrix(y_test, y_pred)
     disp = ConfusionMatrixDisplay(confusion_matrix=cm,
                                   display_labels=labels,
