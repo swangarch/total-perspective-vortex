@@ -45,6 +45,13 @@ def read_data_subject(path: str, runs: list, task_index: int = 2) -> tuple:
         
     print(f"All {count} edf file loaded for current runs.\n")
 
+    for res in read_res:
+        if res[0].ndim < 3 or len(res[0]) == 0:                       
+          continue
+        mean = res[0].mean(axis=(0, 2), keepdims=True)
+        std = res[0].std(axis=(0, 2), keepdims=True)
+        res[0] = (res[0] - mean) / std
+
     X_train_arr = []
     y_train_arr = []
 

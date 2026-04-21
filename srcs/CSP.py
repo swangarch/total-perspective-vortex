@@ -5,6 +5,8 @@ from scipy.linalg import eigh
 
 class MyCSP(BaseEstimator, TransformerMixin):
     def __init__(self, n_components=8):
+        if n_components % 2 == 1:
+            raise ValueError("n_components has to be even number")
         self.n_components = n_components
 
     def fit(self, X, y):

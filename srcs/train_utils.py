@@ -11,12 +11,12 @@ import os
 from sklearn.metrics import classification_report
 
 
-def train(X, y, pipe_setting = "logreg",
+def train(X, y, pipe_setting = "CSP_LDA",
           n_comp: int = 8, search_param: bool = True):
     print(f"X shape: {X.shape}    y shape: {y.shape}")
 
     if search_param:
-        n_comps = [6, 7, 8, 9, 10, 12, 14, 16]
+        n_comps = [6, 8, 10, 12, 14, 16]
     else:
         n_comps = [n_comp]
     pipes = [pipe_setting]

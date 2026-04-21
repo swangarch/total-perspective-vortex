@@ -51,7 +51,7 @@ def handle_do_imagine(np_data: np.array, labels: np.array,
         elif run_id in imagine:
             np_data = np_data[labels == 1]
             labels = labels[labels == 1]
-    return np_data, labels
+    return [np_data, labels]
 
 
 def read_edf(file: str, plot: bool = False, task_index: int = 0) -> np.ndarray:
@@ -79,6 +79,7 @@ def read_edf(file: str, plot: bool = False, task_index: int = 0) -> np.ndarray:
         tmax=4,
         baseline=(-1, 0),
         preload=True,
+        # reject=dict(eeg=320e-6),
         reject=dict(eeg=420e-6)
     )
     epochs.drop_bad()
@@ -90,7 +91,7 @@ def read_edf(file: str, plot: bool = False, task_index: int = 0) -> np.ndarray:
     raw_labels = epochs.events[:, -1]
     label_map = {v: i for i, v in enumerate(event_id.values())}
     labels = np.array([label_map[l] for l in raw_labels]) 
-    if plot:
-        show_single_epoch(np_data)
+    # if plot:
+    #     show_single_epoch(np_data)
     
     return handle_do_imagine(np_data, labels, file, task_index)
