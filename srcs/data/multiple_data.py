@@ -1,5 +1,4 @@
 import json
-import json
 import numpy as np
 import os
 import random as rd
@@ -62,7 +61,7 @@ def create_dataset_arr(subjects: list, task_index) -> tuple:
     return X, y
 
 
-def split_dataset(subjects: list, rate=0.8, task_index=1, save_path="results/split.json"):
+def split_dataset(subjects: list, rate=0.8, task_index=1):
     rd.seed(SEED)
     indices = list(range(len(subjects)))
     rd.shuffle(indices)
@@ -73,6 +72,7 @@ def split_dataset(subjects: list, rate=0.8, task_index=1, save_path="results/spl
     test_sub  = [subjects[i] for i in test_idx]
     print("Dataset has been splitted based on subjects")
 
+    save_path="results/split.json"
     os.makedirs(os.path.dirname(save_path), exist_ok=True)
     with open(save_path, "w") as f:
         json.dump({"train_valid": sorted(i + 1 for i in train_idx),

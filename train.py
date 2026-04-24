@@ -20,6 +20,8 @@ def main():
     try:
         args = parse_args()
         config = load_config(args.config)
+        if not (args.task == 0 or str(args.task) in config["task"]):
+            raise ValueError("task not exists in config")
         run_train(args.datafolder, config,
               args.task, args.subject)
     except Exception as e:

@@ -8,13 +8,10 @@ def sigmoid(X):
 
 
 class MyLogreg(BaseEstimator, ClassifierMixin):
-    def __init__(self, n_comp=8, learning_rate = 0.001,
-                 max_iter = 1000, batch_size = 24,
-                 C = 0.1):
-        self.n_comp = n_comp
+    def __init__(self, learning_rate = 0.001,
+                 max_iter = 1000, C = 0.1):
         self.learning_rate = learning_rate
         self.max_iter = max_iter
-        self.batch_size = batch_size
         self.C = C
         self.lam = 1.0 / C
 
