@@ -72,7 +72,7 @@ def run_predict_realtime(path: str, config: dict = {},
 def parse_args():
     parser = argparse.ArgumentParser()
     parser.add_argument("datapath")
-    parser.add_argument("--task", "-t", type=int, default=1)
+    parser.add_argument("--task", "-t", type=int, required=True)
     parser.add_argument("--config", "-c", type=str, default="config.json")
     parser.add_argument("--realtime", "-r", action="store_true")
     args = parser.parse_args()

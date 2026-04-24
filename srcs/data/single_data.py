@@ -9,9 +9,13 @@ SEED = 2402
 def read_data_single(filepath: str, task_index: int) -> tuple:  ## for test
     Xarr = []
     yarr = []
-    if not filepath.endswith(".edf"): 
+    if not filepath.endswith(".edf"):
         return None
     res = read_edf(filepath, plot=False, task_index=task_index)
+    if res[0].ndim >= 3 and len(res[0]) > 0:
+        mean = res[0].mean(axis=(0, 2), keepdims=True)
+        std  = res[0].std(axis=(0, 2), keepdims=True)
+        res[0] = (res[0] - mean) / std
     for i in range(len(res[0])):
         if res[0].shape[-1] == 641:
             Xarr.append(res[0][i])
@@ -60,7 +64,7 @@ def read_data_subject(path: str, runs: list, task_index: int = 2) -> tuple:
     for i, res in enumerate(read_res):
         for j, epoch in enumerate(res[0]):
             if epoch.shape[-1] == 641:
-                if (task_index in [1, 2, 3, 4, 5] and i != 2 ) or (task_index in [5, 6] and i not in [4, 5]):
+                if (task_index in [1, 2, 3, 4] and i != 2 ) or (task_index in [5, 6] and i not in [4, 5]):
                     X_train_arr.append(epoch)
                     y_train_arr.append(res[1][j])
                 else:

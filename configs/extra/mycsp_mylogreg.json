@@ -37,18 +37,18 @@
             "labels": ["booth fist", "booth feet"]
         },
         "5": {
-            "n_comp": 10,
+            "n_comp": 24,
             "classifier": "MyCSP_MyLogreg",
-            "search_param": true,
+            "search_param": false,
             "model": "models_save/mycsp_mylogreg/ttv_5.pkl",
             "runs": [ "R03", "R04", "R07", "R08", "R11", "R12" ],
             "title": "Task5 - open or imagine opening left fists",
             "labels": ["open", "imagine opening"]
         },
         "6": {
-            "n_comp": 12,
+            "n_comp": 22,
             "classifier": "MyCSP_MyLogreg",
-            "search_param": true,
+            "search_param": false,
             "model": "models_save/mycsp_mylogreg/ttv_6.pkl",
             "runs": [ "R03", "R04", "R07", "R08", "R11", "R12" ],
             "title": "Task6 - open or imagine opening right fists",

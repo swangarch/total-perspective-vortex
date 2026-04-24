@@ -53,17 +53,17 @@ def run_train(path: str, config: dict = {},
         if task != 0 and int(task_id) != task:
             continue
         print(f"Edf file loaded for current runs {task_id}:  {conf['runs']}")
-        try:
-            if subject == 0: # Cross subject tests
-                print(f"Training across all subjects")
-                X, y, X_test, y_test = preprocess_cross_subject_dataset(path, conf["runs"], int(task_id))
-            else:
-                subject_path = os.path.join(path, "S" + str(subject).zfill(3))
-                print(f"Training on single subject {subject}")
-                X, y, X_test, y_test = preprocess_single_subject_dataset(subject_path, conf["runs"], int(task_id))
-        except Exception as e:
-            print(f"Error: {e}")
-            return
+        # try:
+        if subject == 0: # Cross subject tests
+            print(f"Training across all subjects")
+            X, y, X_test, y_test = preprocess_cross_subject_dataset(path, conf["runs"], int(task_id))
+        else:
+            subject_path = os.path.join(path, "S" + str(subject).zfill(3))
+            print(f"Training on single subject {subject}")
+            X, y, X_test, y_test = preprocess_single_subject_dataset(subject_path, conf["runs"], int(task_id))
+        # except Exception as e:
+        #     print(f"Error: {e}")
+        #     return
         pipe, score = train(X, y, conf["classifier"], n_comp=conf["n_comp"],
                             search_param=conf["search_param"])
         os.makedirs(os.path.dirname(conf["model"]), exist_ok=True)
