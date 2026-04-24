@@ -4,12 +4,12 @@ from scipy.linalg import eigh
 
 
 class MyCSP(BaseEstimator, TransformerMixin):
-    def __init__(self, n_components=8):
+    def __init__(self, n_components: int = 8):
         if n_components % 2 == 1:
             raise ValueError("n_components has to be even number")
         self.n_components = n_components
 
-    def fit(self, X, y):
+    def fit(self, X: np.array, y: np.array):
         # X (n_epochs, n_channels, n_times)
         # y (n_epochs)
         # 1. seperate two class
@@ -39,7 +39,7 @@ class MyCSP(BaseEstimator, TransformerMixin):
         self.W_ = np.hstack((eigvecs[:, max_indices], eigvecs[:, min_indices]))
         return self
 
-    def transform(self, X):
+    def transform(self, X: np.array):
 
         # X: (n_trials, n_channels, n_times)
         # 1. use W to filter each trial

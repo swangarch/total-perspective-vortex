@@ -60,7 +60,7 @@ def read_data_subject(path: str, runs: list, task_index: int = 2) -> tuple:
     for i, res in enumerate(read_res):
         for j, epoch in enumerate(res[0]):
             if epoch.shape[-1] == 641:
-                if (task_index in [1, 2, 3, 4] and i != 2 ) or (task_index in [5, 6] and i not in [4, 5]):
+                if (task_index in [1, 2, 3, 4, 5] and i != 2 ) or (task_index in [5, 6] and i not in [4, 5]):
                     X_train_arr.append(epoch)
                     y_train_arr.append(res[1][j])
                 else:

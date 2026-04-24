@@ -16,7 +16,7 @@ def train(X, y, pipe_setting = "CSP_LDA",
     print(f"X shape: {X.shape}    y shape: {y.shape}")
 
     if search_param:
-        n_comps = [6, 8, 10, 12, 14, 16]
+        n_comps = [6, 8, 10, 12, 14, 16, 18, 20, 22, 24, 26]
     else:
         n_comps = [n_comp]
     pipes = [pipe_setting]

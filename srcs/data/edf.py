@@ -1,10 +1,7 @@
 from mne.io import read_raw_edf
-# impo
 import mne
 import numpy as np
-import os
-import random as rd
-from .plot import show_single_epoch, show_edf
+from .plot import show_edf
 
 
 SEED = 2402
@@ -79,7 +76,6 @@ def read_edf(file: str, plot: bool = False, task_index: int = 0) -> np.ndarray:
         tmax=4,
         baseline=(-1, 0),
         preload=True,
-        # reject=dict(eeg=320e-6),
         reject=dict(eeg=420e-6)
     )
     epochs.drop_bad()

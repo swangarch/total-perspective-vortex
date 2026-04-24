@@ -76,6 +76,7 @@ def parse_args():
     parser.add_argument("--config", "-c", type=str, default="config.json")
     parser.add_argument("--realtime", "-r", action="store_true")
     args = parser.parse_args()
+    assert args.task in [0, 1, 2, 3, 4, 5, 6], "Wrong task index"
     return args
 
 

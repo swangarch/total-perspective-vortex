@@ -85,7 +85,7 @@ The preprocessing pipeline applies the following steps in order:
 2. **`raw.pick("eeg")`** - Keep only EEG channels, remove other signal types
 3. **`raw.notch_filter(60)`** - Remove 60Hz power line noise
 4. **`raw.filter(8, 30)`** - Bandpass filter to keep only 8-30Hz, the frequency range most relevant to motor imagery
-5. **`raw.resample(160)`** - Downsample to 160Hz to reduce data size
+5. **`raw.resample(160)`** - Sample to 160Hz to keep data size
 6. **`mne.Epochs()`** - Cut the continuous signal into segments (epochs) around each event, with a time window of [-1, 4]s and baseline correction
 7. **`reject=dict(eeg=420e-6)`** - Drop epochs with abnormally large amplitude (likely artifacts)
 8. **`epochs.crop(tmin=0, tmax=4)`** - Keep only the post-event period

@@ -1,9 +1,6 @@
-# from mne.io import read_raw_edf
-# import mne
 import numpy as np
 import os
 import random as rd
-# from .plot import show_single_epoch, show_edf
 from .edf import read_edf
 
 
@@ -40,7 +37,7 @@ def create_dataset_arr(subjects: list, task_index) -> tuple:
         for res in sub:
             if res[0].ndim < 3 or len(res[0]) == 0:
                 continue 
-            if task_index in [1, 3, 4, 5]: # standarization
+            if task_index in [1, 2, 3, 4, 5]: # standarization
                 mean = res[0].mean(axis=(0, 2), keepdims=True)
                 std = res[0].std(axis=(0, 2), keepdims=True)
                 data = (res[0] - mean) / std
