@@ -29,13 +29,14 @@ def train(X, y, pipe_setting = "CSP_LDA",
         for p in pipes:
             pipe = pipe_setup(p, n_comp)
             print(f"Training with cross validation. classifier: {p}")
-            scores = cross_val_score(pipe, X, y, cv=5)
+            scores = cross_val_score(pipe, X, y, cv=6)
+            print("cv scores:", scores)
             curr_score = scores.mean()
             if curr_score > max_score:
                 max_score = curr_score
                 max_pipe = pipe
                 max_ncomp = n_comp
-            print(f"---- n_comps: {n_comp}  cross validation score: {scores.mean()}")
+            print(f"---- n_comps: {n_comp}  mean cross validation score: {scores.mean()}")
 
     print(f"Training with no cross validation. classifier {pipe_setting}  n_comps: {max_ncomp}")
     max_pipe.fit(X, y)
@@ -53,17 +54,17 @@ def run_train(path: str, config: dict = {},
         if task != 0 and int(task_id) != task:
             continue
         print(f"Edf file loaded for current runs {task_id}:  {conf['runs']}")
-        # try:
-        if subject == 0: # Cross subject tests
-            print(f"Training across all subjects")
-            X, y, X_test, y_test = preprocess_cross_subject_dataset(path, conf["runs"], int(task_id))
-        else:
-            subject_path = os.path.join(path, "S" + str(subject).zfill(3))
-            print(f"Training on single subject {subject}")
-            X, y, X_test, y_test = preprocess_single_subject_dataset(subject_path, conf["runs"], int(task_id))
-        # except Exception as e:
-        #     print(f"Error: {e}")
-        #     return
+        try:
+            if subject == 0: # Cross subject tests
+                print(f"Training across all subjects")
+                X, y, X_test, y_test = preprocess_cross_subject_dataset(path, conf["runs"], int(task_id))
+            else:
+                subject_path = os.path.join(path, "S" + str(subject).zfill(3))
+                print(f"Training on single subject {subject}")
+                X, y, X_test, y_test = preprocess_single_subject_dataset(subject_path, conf["runs"], int(task_id))
+        except Exception as e:
+            print(f"Error: {e}")
+            return
         pipe, score = train(X, y, conf["classifier"], n_comp=conf["n_comp"],
                             search_param=conf["search_param"])
         os.makedirs(os.path.dirname(conf["model"]), exist_ok=True)

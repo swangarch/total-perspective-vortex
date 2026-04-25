@@ -1,37 +1,37 @@
 {
     "task": {
         "1": {
-            "n_comp": 8,
+            "n_comp": 6,
             "classifier": "MyCSP_MyLogreg",
-            "search_param": true,
-            "model": "models_save/MyCSP_MyLogreg/ttv_1.pkl",
+            "search_param": false,
+            "model": "models_save/mycsp_mylogreg/ttv_1.pkl",
             "runs": [ "R03", "R07", "R11" ],
             "title": "Task1 - open and close left or right fist",
             "labels": ["left fist", "right fist"]
         },
         "2": {
-            "n_comp": 10,
+            "n_comp": 6,
             "classifier": "MyCSP_MyLogreg",
-            "search_param": true,
-            "model": "models_save/MyCSP_MyLogreg/ttv_2.pkl",
+            "search_param": false,
+            "model": "models_save/mycsp_mylogreg/ttv_2.pkl",
             "runs": [ "R04", "R08", "R12" ],
             "title": "Task2 - imagine opening and closing left or right fist",
             "labels": ["left fist", "right fist"]
         },
         "3": {
-            "n_comp": 16,
+            "n_comp": 26,
             "classifier": "MyCSP_MyLogreg",
-            "search_param": true,
-            "model": "models_save/MyCSP_MyLogreg/ttv_3.pkl",
+            "search_param": false,
+            "model": "models_save/mycsp_mylogreg/ttv_3.pkl",
             "runs": [ "R05", "R09", "R13" ],
             "title": "Task3 - open and close both fists or both feet",
             "labels": ["booth fist", "booth feet"]
         },
         "4": {
-            "n_comp": 22,
+            "n_comp": 24,
             "classifier": "MyCSP_MyLogreg",
-            "search_param": true,
-            "model": "models_save/MyCSP_MyLogreg/ttv_4.pkl",
+            "search_param": false,
+            "model": "models_save/mycsp_mylogreg/ttv_4.pkl",
             "runs": [ "R06", "R10", "R14" ],
             "title": "Task4 - imagine opening and closing both fists or both feet",
             "labels": ["booth fist", "booth feet"]
